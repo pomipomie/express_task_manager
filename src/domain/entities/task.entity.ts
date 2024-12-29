@@ -1,4 +1,4 @@
-import { taskState } from "../../utils/enums/taskState.enum";
+import { taskStatus } from "../../utils/enums/taskStatus.enum";
 import { IProject } from "../interfaces/project.interface";
 import { ITask } from "../interfaces/task.interface";
 import { IUser } from "../interfaces/user.interface";
@@ -9,7 +9,7 @@ export class Task extends Metadata implements ITask {
 	description: string;
 	users: IUser[];
 	project: IProject;
-	state: taskState;
+	status: taskStatus;
 	dueDate: Date;
 
 	constructor(
@@ -20,7 +20,7 @@ export class Task extends Metadata implements ITask {
 		description: string,
 		users: IUser[],
 		project: IProject,
-		state: taskState,
+		status: taskStatus,
 		dueDate: Date
 	) {
 		super(id, createdAt, updatedAt);
@@ -28,17 +28,17 @@ export class Task extends Metadata implements ITask {
 		this.description = description;
 		this.users = users;
 		this.project = project;
-		this.state = state;
+		this.status = status;
 		this.dueDate = dueDate;
 	}
 }
 
-export type PQuery = {
+export type TQuery = {
 	id?: string;
 	name?: string;
 	description?: string;
 	users?: IUser[];
 	project?: IProject;
-	state: taskState;
+	status: taskStatus;
 	dueDate?: Date;
 };

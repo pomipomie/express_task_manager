@@ -1,4 +1,4 @@
-import { taskState } from "../../utils/enums/taskState.enum";
+import { taskStatus } from "../../utils/enums/taskStatus.enum";
 import { IMetadata } from "./metadata.interface";
 import { IProject } from "./project.interface";
 import { IUser } from "./user.interface";
@@ -8,6 +8,6 @@ export interface ITask extends IMetadata {
 	description: string;
 	users: IUser[];
 	project: IProject;
-	state: taskState;
+	status: taskStatus;
 	dueDate: Date;
 }
