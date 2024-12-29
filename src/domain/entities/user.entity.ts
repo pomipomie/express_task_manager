@@ -37,6 +37,18 @@ export class User extends Metadata implements IUser {
 	}
 }
 
+export type CreateParams = {
+	username: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	auth: {
+		password: string;
+		token: string;
+		role: string;
+	};
+};
+
 export type Query = {
 	id?: string;
 	username?: string;

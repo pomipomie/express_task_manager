@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { Query, User } from "../../domain/entities/user.entity";
+import { CreateParams, Query, User } from "../../domain/entities/user.entity";
 import { IUser } from "../../domain/interfaces/user.interface";
 
 /**
@@ -66,6 +66,16 @@ const UserSchema = new Schema<IUser>(
 export default model<IUser>("User", UserSchema);
 
 export const Mapper = {
+	toDtoCreation: (payload: CreateParams) => {
+		return {
+			username: payload.username,
+			firstName: payload.firstName,
+			lastName: payload.lastName,
+			email: payload.email,
+			auth: payload.auth,
+		};
+	},
+
 	toQuery: (query: Query) => {
 		return {
 			...(query.id && { _id: query.id }),

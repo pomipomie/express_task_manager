@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Response, Router } from "express";
 // import authorization and response messsages
 
 // bring routers here
@@ -28,12 +28,12 @@ const router = Router();
  *                   example: "Express + TypeScript Server"
  */
 
-router.get("/test", (req: Request, res: Response) => {
+router.get("/test", (res: Response) => {
 	res.send("Express + TypeScript Server");
 });
 
 // not found route
-router.use((req: Request, res: Response) => {
+router.use((res: Response) => {
 	res.status(404).json({
 		success: false,
 		message: "not found", //insert error message

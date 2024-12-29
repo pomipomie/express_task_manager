@@ -1,0 +1,18 @@
+version: "3.3"
+
+services:
+  mongodb-taskmanager:
+    container_name: mongodb-taskmanager
+    hostname: mongodb-taskmanager
+    restart: unless-stopped
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root123
+    volumes:
+      - taskmanager-mongo-data:/data/db
+
+volumes:
+  taskmanager-mongo-data:

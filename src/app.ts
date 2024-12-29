@@ -1,5 +1,5 @@
 import express, { Express } from "express";
-import router from "./api/routes/index.routes";
+import router from "./api/routes/index.router";
 import config from "./config";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../docs/swaggerConfig";
