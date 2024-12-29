@@ -24,6 +24,9 @@ import { IProject } from "../../domain/interfaces/project.interface";
  *         users:
  *           type: IUser[]
  *           description: The listn of users associated with the project
+ *         status:
+ *           type: string
+ *           description: The status of the project
  *         createdAt:
  *           type: string
  *           format: date-time

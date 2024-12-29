@@ -25,6 +25,9 @@ import { ITask } from "../../domain/interfaces/task.interface";
  *         users:
  *           type: IUser[]
  *           description: The listn of users associated with the task
+ *         status:
+ *           type: string
+ *           description: The status of the task
  *         project:
  *           type: string
  *           description: The project associated with the task
