@@ -10,7 +10,25 @@ const router = Router();
 // router.use("/route", routeRouter)
 
 // test route (delete later)
-router.get("/", (req: Request, res: Response) => {
+/**
+ * @swagger
+ * /test:
+ *   get:
+ *     summary: Returns a message
+ *     responses:
+ *       200:
+ *         description: A successful response
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Express + TypeScript Server"
+ */
+
+router.get("/test", (req: Request, res: Response) => {
 	res.send("Express + TypeScript Server");
 });
 
