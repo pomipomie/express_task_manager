@@ -9,16 +9,12 @@ import { IUser } from "../../domain/interfaces/user.interface";
  *     User:
  *       type: object
  *       required:
- *         - id
  *         - username
  *         - firstName
  *         - lastName
  *         - email
  *         - auth
  *       properties:
- *         id:
- *           type: string
- *           description: The unique identifier of the user
  *         username:
  *           type: string
  *           description: The username
@@ -43,7 +39,6 @@ import { IUser } from "../../domain/interfaces/user.interface";
 
 const UserSchema = new Schema<IUser>(
 	{
-		id: { type: String, required: true },
 		username: { type: String, required: true },
 		firstName: { type: String, required: true },
 		lastName: { type: String, required: true },
@@ -55,7 +50,17 @@ const UserSchema = new Schema<IUser>(
 			role: { type: String, required: true },
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		toJSON: {
+			virtuals: true, // Include virtual fields
+			transform: (doc, ret) => {
+				ret.id = ret._id.toString(); // Map `_id` to `id`
+				delete ret._id; // Remove `_id` from the output
+				delete ret.__v; // Remove `__v` (version key)
+			},
+		},
+	}
 );
 
 export default model<IUser>("User", UserSchema);
@@ -63,7 +68,7 @@ export default model<IUser>("User", UserSchema);
 export const Mapper = {
 	toQuery: (query: Query) => {
 		return {
-			...(query.id && { id: query.id }),
+			...(query.id && { _id: query.id }),
 			...(query.firstName && { firstName: query.firstName }),
 			...(query.lastName && { lastName: query.lastName }),
 			...(query.username && { username: query.username }),
