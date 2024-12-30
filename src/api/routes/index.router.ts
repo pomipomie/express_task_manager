@@ -3,9 +3,8 @@ import userRouter from "./user.router";
 import authRouter from "./auth.router";
 import { connection } from "mongoose";
 import projectRouter from "./project.router";
+import taskRouter from "./task.router";
 // import authorization and response messsages
-
-// bring routers here
 
 const router = Router();
 
@@ -15,6 +14,7 @@ const router = Router();
 router.use("/users", userRouter);
 router.use("/auth", authRouter);
 router.use("/projects", projectRouter);
+router.use("/tasks", taskRouter);
 
 // test route (delete later)
 /**

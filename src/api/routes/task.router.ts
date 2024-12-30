@@ -1,79 +1,79 @@
 import { Request, Response, Router } from "express";
-import ProjectRepo from "../../domain/repositories/project.repo";
-import ProjectController from "../controllers/project.controller";
+import TaskRepo from "../../domain/repositories/task.repo";
+import TaskController from "../controllers/task.controller";
 //import validators and auth
 
 const router = Router();
 
-const projectRepository = new ProjectRepo();
-const projectController = new ProjectController(projectRepository);
+const taskRepository = new TaskRepo();
+const taskController = new TaskController(taskRepository);
 
-// POST /projects/new
+// POST /tasks/new
 router.post("/new", async (req: Request, res: Response) => {
 	try {
-		const projects = await projectController.createProject(req, res);
+		const tasks = await taskController.createTask(req, res);
 	} catch (error) {
 		res.status(500).json({ message: "error.message" });
 	}
 });
 
-// GET /projects/
+// GET /tasks/
 router.get("/", async (req: Request, res: Response) => {
 	try {
-		const projects = await projectController.getAllProjects(req, res);
-		res.json(projects);
+		const tasks = await taskController.getAllTasks(req, res);
+		res.json(tasks);
 	} catch (error) {
 		res.status(500).json({ message: "error.message" });
 	}
 });
 
-// GET /projects/id/:id
+// GET /tasks/id/:id
 router.get("/id/:id", async (req: Request, res: Response) => {
 	try {
-		const project = await projectController.getProjectById(req, res);
-		res.json(project);
+		const task = await taskController.getTaskById(req, res);
+		res.json(task);
 	} catch (error) {
 		res.status(500).json({ message: "error.message" });
 	}
 });
 
-// GET /projects/find?=query
+// GET /tasks/find?=query
 router.get("/find", async (req: Request, res: Response) => {
 	try {
 		console.log("/find", req.query);
-		const project = await projectController.findProject(req, res);
+		const task = await taskController.findTask(req, res);
 	} catch (error) {
 		res.status(404).json({
 			success: false,
-			message: "Project not found",
+			message: "Task not found",
 		});
 	}
 });
 
-// PUT /projects/update/:id
+// PUT /tasks/update/:id
 
 router.put("/update/:id", async (req: Request, res: Response) => {
 	try {
-		const updatedProject = await projectController.updateProject(req, res);
+		const updatedTask = await taskController.updateTask(req, res);
 	} catch (error) {
 		res.status(/*error.message === "Email already exists" ? 409 : */ 404).json({
 			success: false,
 			message:
-				/*error.message || */ "An error occurred while updating the project.",
+				/*error.message || */ "An error occurred while updating the task.",
 		});
 	}
 });
 
-// DELETE /projects/delete/:id
+// DELETE /tasks/delete/:id
 router.delete("/delete/:id", async (req: Request, res: Response) => {
 	try {
-		const result = await projectController.deleteProject(req, res);
+		const result = await taskController.deleteTask(req, res);
 	} catch (error) {
 		res
 			.status(/*error.message === "Incorrect credentials" ? 403 : */ 404)
 			.json({
 				success: false,
-				message: "An error occurred while deleting the project.",
+				message: "An error occurred while deleting the task.",
 			});
 	}
 });
