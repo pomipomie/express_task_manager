@@ -85,7 +85,7 @@ export const Mapper = {
 
 	toQuery: (query: TQuery) => {
 		return {
-			...(query.id && { _id: query.id }),
+			...(query.id && { id: query.id }),
 			...(query.name && { firstName: query.name }),
 			...(query.description && { description: query.description }),
 			...(query.users && { users: query.users }),

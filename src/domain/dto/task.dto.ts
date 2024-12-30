@@ -8,7 +8,7 @@ export interface TQuery {
 	description?: string;
 	users?: IUser[];
 	project?: IProject;
-	status: taskStatus;
+	status?: taskStatus;
 	dueDate?: Date;
 }
 
