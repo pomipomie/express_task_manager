@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import userRouter from "./user.router";
 import authRouter from "./auth.router";
 import { connection } from "mongoose";
+import projectRouter from "./project.router";
 // import authorization and response messsages
 
 // bring routers here
@@ -13,6 +14,7 @@ const router = Router();
 // router.use("/route", routeRouter)
 router.use("/users", userRouter);
 router.use("/auth", authRouter);
+router.use("/projects", projectRouter);
 
 // test route (delete later)
 /**
