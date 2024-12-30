@@ -1,4 +1,5 @@
-import { CreateParams, Query, User } from "../entities/user.entity";
+import { CreateParams, Query } from "../dto/user.dto";
+import { User } from "../entities/user.entity";
 
 export default interface IUserRepo {
 	create(payload: CreateParams): Promise<User>;
@@ -8,6 +9,8 @@ export default interface IUserRepo {
 	findOne(query: Query, selectPassword: Boolean): Promise<User | null>;
 
 	findById(id: string): Promise<User | null>;
+
+	findByEmail(email: string): Promise<User | null>;
 
 	findPaging(
 		query: Query,

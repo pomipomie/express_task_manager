@@ -1,4 +1,5 @@
 import { IUser } from "../interfaces/user.interface";
+import { Auth } from "./auth.entity";
 import { Metadata } from "./metadata.entity";
 
 export class User extends Metadata implements IUser {
@@ -6,12 +7,7 @@ export class User extends Metadata implements IUser {
 	firstName: string;
 	lastName: string;
 	email: string;
-	//placeholder
-	auth: {
-		password: string;
-		token: string;
-		role: string;
-	};
+	auth: Auth;
 
 	constructor(
 		id: string,
@@ -21,12 +17,7 @@ export class User extends Metadata implements IUser {
 		firstName: string,
 		lastName: string,
 		email: string,
-		//placeholder
-		auth: {
-			password: string;
-			token: string;
-			role: string;
-		}
+		auth: Auth
 	) {
 		super(id, createdAt, updatedAt);
 		this.username = username;
@@ -36,24 +27,3 @@ export class User extends Metadata implements IUser {
 		this.auth = auth;
 	}
 }
-
-export type CreateParams = {
-	username: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	auth: {
-		password: string;
-		token: string;
-		role: string;
-	};
-};
-
-export type Query = {
-	id?: string;
-	username?: string;
-	firstName?: string;
-	lastName?: string;
-	email?: string;
-	role?: string;
-};

@@ -1,3 +1,4 @@
+import { IAuth } from "./auth.interface";
 import { IMetadata } from "./metadata.interface";
 
 export interface IUser extends IMetadata {
@@ -5,9 +6,5 @@ export interface IUser extends IMetadata {
 	firstName: string;
 	lastName: string;
 	email: string;
-	auth: {
-		password: string;
-		token: string;
-		role: string;
-	};
+	auth: IAuth;
 }

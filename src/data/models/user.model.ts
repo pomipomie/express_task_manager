@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
-import { CreateParams, Query, User } from "../../domain/entities/user.entity";
+import { User } from "../../domain/entities/user.entity";
 import { IUser } from "../../domain/interfaces/user.interface";
+import { roles } from "../../utils/enums/roles.enum";
+import { CreateParams, Query } from "../../domain/dto/user.dto";
 
 /**
  * @swagger
@@ -35,6 +37,9 @@ import { IUser } from "../../domain/interfaces/user.interface";
  *           type: string
  *           format: date-time
  *           description: When the user was last updated
+ *         auth:
+ *           type: object
+ *           description: Authentication and authorization information
  */
 
 const UserSchema = new Schema<IUser>(
@@ -43,11 +48,10 @@ const UserSchema = new Schema<IUser>(
 		firstName: { type: String, required: true },
 		lastName: { type: String, required: true },
 		email: { type: String, required: true },
-		//placeholder
 		auth: {
 			password: { type: String, required: true },
-			token: { type: String, required: true },
-			role: { type: String, required: true },
+			token: { type: String, default: "" },
+			role: { type: String, required: true, default: roles.USER },
 		},
 	},
 	{
@@ -72,7 +76,7 @@ export const Mapper = {
 			firstName: payload.firstName,
 			lastName: payload.lastName,
 			email: payload.email,
-			auth: payload.auth,
+			password: payload.password,
 		};
 	},
 

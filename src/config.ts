@@ -7,4 +7,5 @@ export default {
 	MONGO_URI: process.env.MONGODB_URI || "",
 	ENV: process.env.NODE_ENV || "development",
 	URL: process.env.URL,
+	JWT_SECRET: process.env.JWT_SECRET || "246789",
 };
