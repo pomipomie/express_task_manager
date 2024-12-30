@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
-import { Project, PQuery } from "../../domain/entities/project.entity";
+import { Project } from "../../domain/entities/project.entity";
 import { IProject } from "../../domain/interfaces/project.interface";
+import { PCreateParams, PQuery } from "../../domain/dto/project.dto";
 
 /**
  * @swagger
@@ -65,9 +66,19 @@ const ProjectSchema = new Schema<IProject>(
 export default model<IProject>("Project", ProjectSchema);
 
 export const Mapper = {
+	toDtoCreation: (payload: PCreateParams) => {
+		return {
+			name: payload.name,
+			description: payload.description,
+			users: payload.users,
+			status: payload.status,
+			dueDate: payload.dueDate,
+		};
+	},
+
 	toQuery: (query: PQuery) => {
 		return {
-			...(query.id && { _id: query.id }),
+			...(query.id && { id: query.id }),
 			...(query.name && { firstName: query.name }),
 			...(query.description && { description: query.description }),
 			...(query.users && { users: query.users }),

@@ -28,12 +28,3 @@ export class Project extends Metadata implements IProject {
 		this.dueDate = dueDate;
 	}
 }
-
-export type PQuery = {
-	id?: string;
-	name?: string;
-	description?: string;
-	users?: IUser[];
-	status: taskStatus;
-	dueDate?: Date;
-};
