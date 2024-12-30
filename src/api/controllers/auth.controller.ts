@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import AuthService from "../services/auth.service";
 import { CreateParams } from "../../domain/dto/user.dto";
 import { LoginInput } from "../../domain/dto/auth.dto";
-
-const JWT_SECRET = "your_jwt_secret_key"; // Replace with a strong secret key
 
 export default class AuthController {
 	constructor(private authService: AuthService) {}

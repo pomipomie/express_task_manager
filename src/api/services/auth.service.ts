@@ -2,7 +2,7 @@ import IAuthService from "./interfaces/iauth.service";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { LoginInput, SignupInput } from "../../domain/dto/auth.dto";
-import IUserRepo from "../../domain/repositories/user.repo";
+import IUserRepo from "../../domain/repositories/interfaces/iuser.repo";
 import config from "../../config";
 
 export default class AuthService implements IAuthService {
@@ -65,6 +65,7 @@ export default class AuthService implements IAuthService {
 		);
 		user.auth.token = token;
 		// see if a setter is needed for saving token
+		// maybe token should not be an auth property?
 
 		return { token };
 	};

@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
-import { Task, TQuery } from "../../domain/entities/task.entity";
+import { Task } from "../../domain/entities/task.entity";
 import { ITask } from "../../domain/interfaces/task.interface";
+import { TCreateParams, TQuery } from "../../domain/dto/task.dto";
+import { taskStatus } from "../../utils/enums/taskStatus.enum";
 
 /**
  * @swagger
@@ -51,7 +53,7 @@ const TaskSchema = new Schema<ITask>(
 		description: { type: String, required: true },
 		users: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
 		project: { type: Schema.Types.ObjectId, ref: "Project", required: true },
-		status: { type: String, required: true },
+		status: { type: String, required: true, default: taskStatus.PENDING },
 		dueDate: { type: Date, required: true },
 	},
 	{
@@ -70,6 +72,17 @@ const TaskSchema = new Schema<ITask>(
 export default model<ITask>("Task", TaskSchema);
 
 export const Mapper = {
+	toDtoCreation: (payload: TCreateParams) => {
+		return {
+			name: payload.name,
+			description: payload.description,
+			users: payload.users,
+			project: payload.project,
+			status: payload.status,
+			dueDate: payload.dueDate,
+		};
+	},
+
 	toQuery: (query: TQuery) => {
 		return {
 			...(query.id && { _id: query.id }),

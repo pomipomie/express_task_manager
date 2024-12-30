@@ -32,13 +32,3 @@ export class Task extends Metadata implements ITask {
 		this.dueDate = dueDate;
 	}
 }
-
-export type TQuery = {
-	id?: string;
-	name?: string;
-	description?: string;
-	users?: IUser[];
-	project?: IProject;
-	status: taskStatus;
-	dueDate?: Date;
-};

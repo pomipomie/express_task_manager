@@ -82,7 +82,7 @@ export const Mapper = {
 
 	toQuery: (query: Query) => {
 		return {
-			...(query.id && { _id: query.id }),
+			...(query.id && { id: query.id }),
 			...(query.firstName && { firstName: query.firstName }),
 			...(query.lastName && { lastName: query.lastName }),
 			...(query.username && { username: query.username }),

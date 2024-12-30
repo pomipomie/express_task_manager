@@ -1,4 +1,7 @@
-import { Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+import userRouter from "./user.router";
+import authRouter from "./auth.router";
+import { connection } from "mongoose";
 // import authorization and response messsages
 
 // bring routers here
@@ -8,6 +11,8 @@ const router = Router();
 // verify authorization
 
 // router.use("/route", routeRouter)
+router.use("/users", userRouter);
+router.use("/auth", authRouter);
 
 // test route (delete later)
 /**
@@ -27,16 +32,33 @@ const router = Router();
  *                   type: string
  *                   example: "Express + TypeScript Server"
  */
-
-router.get("/test", (res: Response) => {
+router.use("/test", (req: Request, res: Response) => {
 	res.send("Express + TypeScript Server");
 });
 
-// not found route
-router.use((res: Response) => {
+router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const isConnected = connection.readyState === 1;
+		if (isConnected) {
+			res.status(200).json({ success: true, message: "Database is connected" });
+		} else {
+			res
+				.status(500)
+				.json({ success: false, message: "Database is not connected" });
+		}
+	} catch (err) {
+		console.error(err);
+		res
+			.status(500)
+			.json({ success: false, message: "Error checking database status" });
+	}
+});
+
+// Catch-all for undefined routes
+router.use((req: Request, res: Response, next: NextFunction) => {
 	res.status(404).json({
 		success: false,
-		message: "not found", //insert error message
+		message: "Route not found",
 	});
 });
 
