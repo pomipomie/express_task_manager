@@ -4,6 +4,7 @@ import TaskController from "../controllers/task.controller";
 import {
 	createTaskValidator,
 	findTaskValidator,
+	taskIDValidator,
 } from "../validators/task.validator";
 
 const router = Router();
@@ -17,72 +18,74 @@ router.post(
 	createTaskValidator,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
-			const tasks = await taskController.createTask(req, res, next);
+			await taskController.createTask(req, res, next);
 		} catch (error) {
-			res.status(500).json({ message: "error.message" });
+			next(error);
 		}
 	}
 );
 
 // GET /tasks/
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const tasks = await taskController.getAllTasks(req, res);
+		const tasks = await taskController.getAllTasks(req, res, next);
 		res.json(tasks);
 	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+		next(error);
 	}
 });
 
 // GET /tasks/id/:id
-router.get("/id/:id", async (req: Request, res: Response) => {
-	try {
-		const task = await taskController.getTaskById(req, res);
-		res.json(task);
-	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+router.get(
+	"/id/:id",
+	taskIDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await taskController.getTaskById(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /tasks/find?=query
-router.get("/find", findTaskValidator, async (req: Request, res: Response) => {
-	try {
-		console.log("/find", req.query);
-		const task = await taskController.findTask(req, res);
-	} catch (error) {
-		res.status(404).json({
-			success: false,
-			message: "Task not found",
-		});
+router.get(
+	"/find",
+	findTaskValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await taskController.findTask(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // PUT /tasks/update/:id
 
-router.put("/update/:id", async (req: Request, res: Response) => {
-	try {
-		const updatedTask = await taskController.updateTask(req, res);
-	} catch (error) {
-		res.status(/*error.message === "Email already exists" ? 409 : */ 404).json({
-			success: false,
-			message:
-				/*error.message || */ "An error occurred while updating the task.",
-		});
+router.put(
+	"/update/:id",
+	taskIDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await taskController.updateTask(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // DELETE /tasks/delete/:id
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-	try {
-		const result = await taskController.deleteTask(req, res);
-	} catch (error) {
-		res
-			.status(/*error.message === "Incorrect credentials" ? 403 : */ 404)
-			.json({
-				success: false,
-				message: "An error occurred while deleting the task.",
-			});
+router.delete(
+	"/delete/:id",
+	taskIDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await taskController.deleteTask(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 export default router;

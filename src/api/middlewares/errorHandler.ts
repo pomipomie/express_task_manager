@@ -9,23 +9,23 @@ export const errorHandler = (
 	next: NextFunction
 ) => {
 	if (res.headersSent) {
-		console.error("Headers already sent:", err);
+		console.error("Headers already sent:", `${err.name} - ${err.message}`);
 		next(err);
 	}
 
 	if (err instanceof BaseError) {
-		console.error(`Error: ${err.name} - ${err.message}`);
+		console.error(`Error: ${err.name} - ${err.message} - ${err.httpCode}`);
 		res.status(err.httpCode).json({
 			success: false,
 			name: err.name,
 			message: err.message,
 		});
+	} else {
+		console.error("Unexpected Error:", err);
+		res.status(HttpStatusCode.INTERNAL_SERVER).json({
+			success: false,
+			name: "Internal Server Error",
+			message: "An unexpected error occurred.",
+		});
 	}
-
-	console.error("Unexpected Error:", err);
-	res.status(HttpStatusCode.INTERNAL_SERVER).json({
-		success: false,
-		name: "Internal Server Error",
-		message: "An unexpected error occurred.",
-	});
 };

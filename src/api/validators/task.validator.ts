@@ -1,6 +1,8 @@
 import Joi from "joi";
 import { Request, Response, NextFunction } from "express";
 import { taskStatus } from "../../utils/enums/taskStatus.enum";
+import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import { ClientError } from "../../utils/errors/clientError";
 
 export const createTaskValidator = (
 	req: Request,
@@ -22,12 +24,12 @@ export const createTaskValidator = (
 	const { error, value } = schema.validate(req.body, { abortEarly: false });
 
 	if (error) {
-		// Return all errors if validation fails
-		res.status(406).json({
-			success: false,
-			message: "Task validation failed",
-			errors: error.details.map((detail) => detail.message),
-		});
+		throw new ClientError(
+			`[${error.name}] Task validation failed`,
+			HttpStatusCode.NOT_ACCEPTABLE,
+			error.details.map((detail) => detail.message).toString(),
+			true
+		);
 	}
 	req.body = value; // Replace `req.body` with validated data
 
@@ -55,15 +57,39 @@ export const findTaskValidator = (
 	const { error, value } = schema.validate(req.query, { abortEarly: false });
 
 	if (error) {
-		// Return all errors if validation fails
-		res.status(406).json({
-			success: false,
-			message: "Query validation failed",
-			errors: error.details.map((detail) => detail.message),
-		});
+		throw new ClientError(
+			`[${error.name}] Query validation failed`,
+			HttpStatusCode.NOT_ACCEPTABLE,
+			error.details.map((detail) => detail.message).toString(),
+			true
+		);
 	}
 	req.query = value; // Replace `req.body` with validated data
 
 	// Proceed to the next middleware/controller
+	next();
+};
+
+export const taskIDValidator = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+): void => {
+	const objectId = Joi.string()
+		.regex(/^[a-fA-F0-9]{24}$/)
+		.message("Invalid MongoDB ObjectId format");
+	const schema = Joi.object({
+		id: objectId.required(),
+	});
+	const { error, value } = schema.validate(req.params);
+	if (error) {
+		throw new ClientError(
+			`[${error.name}] ID validation failed`,
+			HttpStatusCode.NOT_ACCEPTABLE,
+			error.details.map((detail) => detail.message).toString(),
+			true
+		);
+	}
+	req.params = value;
 	next();
 };
