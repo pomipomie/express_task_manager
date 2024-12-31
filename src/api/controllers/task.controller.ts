@@ -2,14 +2,14 @@ import mongoose from "mongoose";
 import { TCreateParams } from "../../domain/dto/task.dto";
 import ITaskRepo from "../../domain/repositories/interfaces/itask.repo";
 import { bindMethods } from "../../utils/binder";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export default class TaskController {
 	constructor(private taskRepo: ITaskRepo) {
 		bindMethods(this); // Auto-bind methods
 	}
 
-	createTask = async (req: Request, res: Response) => {
+	createTask = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const taskData: TCreateParams = req.body;
 			const create = await this.taskRepo.create(taskData);

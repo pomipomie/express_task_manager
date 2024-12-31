@@ -1,7 +1,10 @@
-import { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import TaskRepo from "../../domain/repositories/task.repo";
 import TaskController from "../controllers/task.controller";
-//import validators and auth
+import {
+	createTaskValidator,
+	findTaskValidator,
+} from "../validators/task.validator";
 
 const router = Router();
 
@@ -9,13 +12,17 @@ const taskRepository = new TaskRepo();
 const taskController = new TaskController(taskRepository);
 
 // POST /tasks/new
-router.post("/new", async (req: Request, res: Response) => {
-	try {
-		const tasks = await taskController.createTask(req, res);
-	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+router.post(
+	"/new",
+	createTaskValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const tasks = await taskController.createTask(req, res, next);
+		} catch (error) {
+			res.status(500).json({ message: "error.message" });
+		}
 	}
-});
+);
 
 // GET /tasks/
 router.get("/", async (req: Request, res: Response) => {
@@ -38,7 +45,7 @@ router.get("/id/:id", async (req: Request, res: Response) => {
 });
 
 // GET /tasks/find?=query
-router.get("/find", async (req: Request, res: Response) => {
+router.get("/find", findTaskValidator, async (req: Request, res: Response) => {
 	try {
 		console.log("/find", req.query);
 		const task = await taskController.findTask(req, res);
