@@ -1,7 +1,11 @@
-import { Request, Response, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import ProjectRepo from "../../domain/repositories/project.repo";
 import ProjectController from "../controllers/project.controller";
-//import validators and auth
+import {
+	createProjectValidator,
+	findProjectValidator,
+} from "../validators/project.validator";
+import { IDValidator } from "../validators/common.validator";
 
 const router = Router();
 
@@ -9,73 +13,79 @@ const projectRepository = new ProjectRepo();
 const projectController = new ProjectController(projectRepository);
 
 // POST /projects/new
-router.post("/new", async (req: Request, res: Response) => {
-	try {
-		const projects = await projectController.createProject(req, res);
-	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+router.post(
+	"/new",
+	createProjectValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await projectController.createProject(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /projects/
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const projects = await projectController.getAllProjects(req, res);
+		const projects = await projectController.getAllProjects(req, res, next);
 		res.json(projects);
 	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+		next(error);
 	}
 });
 
 // GET /projects/id/:id
-router.get("/id/:id", async (req: Request, res: Response) => {
-	try {
-		const project = await projectController.getProjectById(req, res);
-		res.json(project);
-	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+router.get(
+	"/id/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await projectController.getProjectById(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /projects/find?=query
-router.get("/find", async (req: Request, res: Response) => {
-	try {
-		console.log("/find", req.query);
-		const project = await projectController.findProject(req, res);
-	} catch (error) {
-		res.status(404).json({
-			success: false,
-			message: "Project not found",
-		});
+router.get(
+	"/find",
+	findProjectValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await projectController.findProject(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // PUT /projects/update/:id
 
-router.put("/update/:id", async (req: Request, res: Response) => {
-	try {
-		const updatedProject = await projectController.updateProject(req, res);
-	} catch (error) {
-		res.status(/*error.message === "Email already exists" ? 409 : */ 404).json({
-			success: false,
-			message:
-				/*error.message || */ "An error occurred while updating the project.",
-		});
+router.put(
+	"/update/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await projectController.updateProject(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // DELETE /projects/delete/:id
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-	try {
-		const result = await projectController.deleteProject(req, res);
-	} catch (error) {
-		res
-			.status(/*error.message === "Incorrect credentials" ? 403 : */ 404)
-			.json({
-				success: false,
-				message: "An error occurred while deleting the project.",
-			});
+router.delete(
+	"/delete/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await projectController.deleteProject(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 export default router;

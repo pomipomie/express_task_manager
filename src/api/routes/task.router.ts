@@ -4,8 +4,8 @@ import TaskController from "../controllers/task.controller";
 import {
 	createTaskValidator,
 	findTaskValidator,
-	taskIDValidator,
 } from "../validators/task.validator";
+import { IDValidator } from "../validators/common.validator";
 
 const router = Router();
 
@@ -38,7 +38,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 // GET /tasks/id/:id
 router.get(
 	"/id/:id",
-	taskIDValidator,
+	IDValidator,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await taskController.getTaskById(req, res, next);
@@ -65,7 +65,7 @@ router.get(
 
 router.put(
 	"/update/:id",
-	taskIDValidator,
+	IDValidator,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await taskController.updateTask(req, res, next);
@@ -78,7 +78,7 @@ router.put(
 // DELETE /tasks/delete/:id
 router.delete(
 	"/delete/:id",
-	taskIDValidator,
+	IDValidator,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await taskController.deleteTask(req, res, next);

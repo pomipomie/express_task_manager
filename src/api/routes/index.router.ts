@@ -4,6 +4,9 @@ import authRouter from "./auth.router";
 import { connection } from "mongoose";
 import projectRouter from "./project.router";
 import taskRouter from "./task.router";
+import { APIError } from "../../utils/errors/apiError";
+import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import { ClientError } from "../../utils/errors/clientError";
 // import authorization and response messsages
 
 const router = Router();
@@ -42,26 +45,32 @@ router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const isConnected = connection.readyState === 1;
 		if (isConnected) {
-			res.status(200).json({ success: true, message: "Database is connected" });
-		} else {
 			res
-				.status(500)
-				.json({ success: false, message: "Database is not connected" });
+				.status(HttpStatusCode.OK)
+				.json({ success: true, message: "Database is connected" });
+		} else {
+			throw new APIError(
+				"Connection failed",
+				HttpStatusCode.INTERNAL_SERVER,
+				"Database is not connected"
+			);
 		}
 	} catch (err) {
-		console.error(err);
-		res
-			.status(500)
-			.json({ success: false, message: "Error checking database status" });
+		throw new APIError(
+			"Connection failed",
+			HttpStatusCode.INTERNAL_SERVER,
+			"Error checking database connection"
+		);
 	}
 });
 
 // Catch-all for undefined routes
 router.use((req: Request, res: Response, next: NextFunction) => {
-	res.status(404).json({
-		success: false,
-		message: "Route not found",
-	});
+	throw new ClientError(
+		"Error 404",
+		HttpStatusCode.NOT_FOUND,
+		"Route not found"
+	);
 });
 
 export default router;

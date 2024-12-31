@@ -1,28 +1,44 @@
 import mongoose from "mongoose";
 import { PCreateParams } from "../../domain/dto/project.dto";
 import IProjectRepo from "../../domain/repositories/interfaces/iproject.repo";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { ClientError } from "../../utils/errors/clientError";
+import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import { BaseError } from "../../utils/errors/baseError";
 
 export default class ProjectController {
 	constructor(private projectRepo: IProjectRepo) {}
 
-	createProject = async (req: Request, res: Response) => {
+	createProject = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const projectData: PCreateParams = req.body;
+			const exists = await this.projectRepo.exists(projectData.name);
+			if (exists) {
+				throw new ClientError(
+					"Duplicate project",
+					HttpStatusCode.CONFLICT,
+					"Project of the same name already exists"
+				);
+			}
 			const create = await this.projectRepo.create(projectData);
 			if (create) {
 				return res
-					.status(201)
+					.status(HttpStatusCode.CREATED)
 					.json({ message: "Project created successfully" });
 			} else {
-				throw new Error("Error creating project");
+				throw new BaseError(
+					"Error creating project",
+					HttpStatusCode.INTERNAL_SERVER,
+					"Project creation failed",
+					true
+				);
 			}
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
-	getAllProjects = async (req: Request, res: Response) => {
+	getAllProjects = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const query = req.query;
 			console.log(query, query._id);
@@ -37,84 +53,88 @@ export default class ProjectController {
 						| Uint8Array
 				)
 			) {
-				return res.status(400).json({
-					success: false,
-					message: "Invalid ObjectId",
-				});
+				throw new ClientError(
+					"Error getting projects IDs",
+					HttpStatusCode.BAD_REQUEST,
+					"Invalid ObjectId"
+				);
 			}
 			const projects = await this.projectRepo.findAll(query);
-			res.status(200).json({
+			res.status(HttpStatusCode.OK).json({
 				success: true,
 				totalResults: projects.length,
 				results: projects,
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
-	getProjectById = async (req: Request, res: Response) => {
+	getProjectById = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const id = req.params.id;
 			const project = await this.projectRepo.findById(id);
 
 			if (!project) {
-				return res.status(404).json({
-					success: false,
-					message: "Project not found",
-				});
+				throw new ClientError(
+					"Project not found",
+					HttpStatusCode.NOT_FOUND,
+					"No projects matching the required ID"
+				);
 			}
 
-			res.status(200).json({
+			res.status(HttpStatusCode.OK).json({
 				success: true,
 				project,
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
-	findProject = async (req: Request, res: Response) => {
+	findProject = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const query = req.query;
 			const project = await this.projectRepo.findOne(query);
 			if (!project) {
-				return res.status(404).json({
-					success: false,
-					message: "project not found",
-				});
+				throw new ClientError(
+					"Project not found",
+					HttpStatusCode.NOT_FOUND,
+					"No projects matching the provided query"
+				);
 			}
 
-			res.status(200).json({
+			res.status(HttpStatusCode.OK).json({
 				success: true,
 				project,
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
-	deleteProject = async (req: Request, res: Response) => {
+	deleteProject = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const deleted = await this.projectRepo.deleteOne(req.params.id);
 
 			if (!deleted) {
-				return res.status(404).json({
-					success: false,
-					message: "Project not found",
-				});
+				throw new ClientError(
+					"Project not found",
+					HttpStatusCode.NOT_FOUND,
+					"No projects matching the required ID"
+				);
 			}
 
-			res.status(200).json({
+			res.status(HttpStatusCode.OK).json({
 				success: true,
 				message: "Project deleted successfully",
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
-	updateProject = async (req: Request, res: Response) => {
+	updateProject = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const updates = req.body;
 			const id = req.params.id;
@@ -124,10 +144,11 @@ export default class ProjectController {
 				const exists = await this.projectRepo.exists(updates.name, id);
 
 				if (exists) {
-					return res.status(409).json({
-						success: false,
-						message: "Project of the same name already exists",
-					});
+					throw new ClientError(
+						"Duplicate project",
+						HttpStatusCode.CONFLICT,
+						"Project of the same name already exists"
+					);
 				}
 			}
 
@@ -137,19 +158,20 @@ export default class ProjectController {
 			});
 
 			if (!updatedProject) {
-				return res.status(404).json({
-					success: false,
-					message: "Project not found",
-				});
+				throw new ClientError(
+					"Project not found",
+					HttpStatusCode.NOT_FOUND,
+					"No projects matching the required ID"
+				);
 			}
 
-			res.status(201).json({
+			res.status(HttpStatusCode.CREATED).json({
 				success: true,
 				message: "Project updated successfully",
 				user: updatedProject,
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 }

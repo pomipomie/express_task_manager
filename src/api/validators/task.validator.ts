@@ -69,27 +69,3 @@ export const findTaskValidator = (
 	// Proceed to the next middleware/controller
 	next();
 };
-
-export const taskIDValidator = (
-	req: Request,
-	res: Response,
-	next: NextFunction
-): void => {
-	const objectId = Joi.string()
-		.regex(/^[a-fA-F0-9]{24}$/)
-		.message("Invalid MongoDB ObjectId format");
-	const schema = Joi.object({
-		id: objectId.required(),
-	});
-	const { error, value } = schema.validate(req.params);
-	if (error) {
-		throw new ClientError(
-			`[${error.name}] ID validation failed`,
-			HttpStatusCode.NOT_ACCEPTABLE,
-			error.details.map((detail) => detail.message).toString(),
-			true
-		);
-	}
-	req.params = value;
-	next();
-};

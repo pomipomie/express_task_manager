@@ -1,7 +1,8 @@
-import { Request, Response, Router } from "express";
+import { Request, Response, Router, NextFunction } from "express";
 import UserController from "../controllers/user.controller";
 import UserRepo from "../../domain/repositories/user.repo";
-//import validators and auth
+import { IDValidator } from "../validators/common.validator";
+import { findUserValidator } from "../validators/user.validator";
 
 const router = Router();
 
@@ -9,63 +10,65 @@ const userRepository = new UserRepo();
 const userController = new UserController(userRepository);
 
 // GET /users
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const users = await userController.findAllUsers(req, res);
+		const users = await userController.findAllUsers(req, res, next);
 		res.json(users);
 	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+		next(error);
 	}
 });
 
 // GET /users/:id
-router.get("/id/:id", async (req: Request, res: Response) => {
-	try {
-		const users = await userController.getUserById(req, res);
-		res.json(users);
-	} catch (error) {
-		res.status(500).json({ message: "error.message" });
+router.get(
+	"/id/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.getUserById(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /users/find?query
-router.get("/find", async (req: Request, res: Response) => {
-	try {
-		console.log("/find", req.query);
-		const user = await userController.getUser(req, res);
-	} catch (error) {
-		res.status(404).json({
-			success: false,
-			message: "User not found",
-		});
+router.get(
+	"/find",
+	findUserValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.getUser(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // PUT /users/:id
-router.put("/update/:id", async (req: Request, res: Response) => {
-	try {
-		const updatedUser = await userController.updateUser(req, res);
-	} catch (error) {
-		res.status(/*error.message === "Email already exists" ? 409 : */ 404).json({
-			success: false,
-			message:
-				/*error.message || */ "An error occurred while updating the user.",
-		});
+router.put(
+	"/update/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.updateUser(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // DELETE /users
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-	try {
-		const result = await userController.deleteUser(req, res);
-	} catch (error) {
-		res
-			.status(/*error.message === "Incorrect credentials" ? 403 : */ 404)
-			.json({
-				success: false,
-				message: "An error occurred while deleting the user.",
-			});
+router.delete(
+	"/delete/:id",
+	IDValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.deleteUser(req, res, next);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 export default router;

@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import { LoginInput, SignupInput } from "../../domain/dto/auth.dto";
 import IUserRepo from "../../domain/repositories/interfaces/iuser.repo";
 import config from "../../config";
+import { ClientError } from "../../utils/errors/clientError";
+import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 
 export default class AuthService implements IAuthService {
 	constructor(private userRepo: IUserRepo, private jwtSecret: string) {}
@@ -12,13 +14,21 @@ export default class AuthService implements IAuthService {
 		// Check if user already exists
 		const userExists = await this.userRepo.exists(userData.username);
 		if (userExists) {
-			throw new Error("User already exists");
+			throw new ClientError(
+				`Duplicate username`,
+				HttpStatusCode.CONFLICT,
+				`This username already exists`
+			);
 		}
 
 		// Check if email already exists
 		const emailExists = await this.userRepo.exists(userData.email);
 		if (emailExists) {
-			throw new Error("Email already in use");
+			throw new ClientError(
+				`Duplicate email`,
+				HttpStatusCode.CONFLICT,
+				`This email is already in use`
+			);
 		}
 
 		// Hash password
@@ -43,7 +53,11 @@ export default class AuthService implements IAuthService {
 		// Find user by email
 		const user = await this.userRepo.findByEmail(loginData.email);
 		if (!user) {
-			throw new Error("Email not found");
+			throw new ClientError(
+				`Email not found`,
+				HttpStatusCode.NOT_FOUND,
+				`This email does not belong to an existing user`
+			);
 		}
 
 		// Check password
@@ -52,7 +66,11 @@ export default class AuthService implements IAuthService {
 			user.auth.password
 		);
 		if (!isPasswordValid) {
-			throw new Error("Invalid email or password");
+			throw new ClientError(
+				`Invalid password`,
+				HttpStatusCode.BAD_REQUEST,
+				`The password entered was not valid`
+			);
 		}
 
 		// Generate JWT
@@ -73,7 +91,11 @@ export default class AuthService implements IAuthService {
 	verifyToken = async (token: string) => {
 		const decoded = jwt.verify(token, config.JWT_SECRET);
 		if (!decoded) {
-			throw new Error("Token not valid");
+			throw new ClientError(
+				`Invalid token`,
+				HttpStatusCode.UNAUTHORIZED,
+				`The token is not valid`
+			);
 		}
 
 		return { decoded };
