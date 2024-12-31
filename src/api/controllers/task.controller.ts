@@ -15,6 +15,14 @@ export default class TaskController {
 	createTask = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const taskData: TCreateParams = req.body;
+			const exists = await this.taskRepo.exists(taskData.name);
+			if (exists) {
+				throw new ClientError(
+					"Duplicate task",
+					HttpStatusCode.CONFLICT,
+					"Task of the same name already exists"
+				);
+			}
 			const create = await this.taskRepo.create(taskData);
 			if (create) {
 				return res
