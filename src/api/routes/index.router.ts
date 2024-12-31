@@ -7,13 +7,11 @@ import taskRouter from "./task.router";
 import { APIError } from "../../utils/errors/apiError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { ClientError } from "../../utils/errors/clientError";
-// import authorization and response messsages
+import redisClient from "../../data/cache/redisClient";
+import { BaseError } from "../../utils/errors/baseError";
 
 const router = Router();
 
-// verify authorization
-
-// router.use("/route", routeRouter)
 router.use("/users", userRouter);
 router.use("/auth", authRouter);
 router.use("/projects", projectRouter);
@@ -60,6 +58,23 @@ router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 			"Connection failed",
 			HttpStatusCode.INTERNAL_SERVER,
 			"Error checking database connection"
+		);
+	}
+});
+
+//clear cache
+router.use("/clearcache", async (req: Request, res: Response) => {
+	try {
+		await redisClient.flushAll(); // Clears all Redis data
+		res
+			.status(HttpStatusCode.OK)
+			.json({ success: true, message: "Cache cleared" });
+	} catch (error) {
+		throw new BaseError(
+			"Error clearing cache",
+			HttpStatusCode.NOT_IMPLEMENTED,
+			error?.toString() || "Failed to clear cache",
+			true
 		);
 	}
 });

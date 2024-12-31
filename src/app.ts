@@ -4,7 +4,6 @@ import config from "./config";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../docs/swaggerConfig";
 import mongoose from "mongoose";
-import { Request, Response } from "express";
 import { errorHandler } from "./api/middlewares/errorHandler";
 
 const app: Express = express();

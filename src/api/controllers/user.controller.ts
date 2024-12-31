@@ -6,6 +6,9 @@ import { bindMethods } from "../../utils/binder";
 import mongoose from "mongoose";
 import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import redisClient from "../../data/cache/redisClient";
+import { saveCache } from "../../data/cache/saveCache";
+import { deleteCache } from "../../data/cache/deleteCache";
 
 export default class UserController {
 	constructor(private repository: IUserRepo) {
@@ -15,7 +18,6 @@ export default class UserController {
 	findAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const query = req.query;
-			console.log(query, query._id);
 			if (
 				query._id &&
 				!mongoose.Types.ObjectId.isValid(
@@ -38,6 +40,10 @@ export default class UserController {
 			const responseUsers = users.map((user) =>
 				this.generateUserResponse(user)
 			);
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, responseUsers);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				totalResults: users.length,
@@ -90,6 +96,9 @@ export default class UserController {
 				);
 			}
 
+			// Save data to Redis cache for future requests
+			await saveCache(req, user);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				user,
@@ -110,6 +119,9 @@ export default class UserController {
 					"No users matching the provided ID"
 				);
 			}
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, user);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
@@ -152,6 +164,12 @@ export default class UserController {
 				);
 			}
 
+			//clear cache for list of all users
+			await deleteCache("/users");
+
+			//clear cache for this user
+			await deleteCache(`/users/id/${id}`);
+
 			res.status(HttpStatusCode.CREATED).json({
 				success: true,
 				message: "User updated successfully",
@@ -175,6 +193,12 @@ export default class UserController {
 					"No users matching the provided ID"
 				);
 			}
+
+			//clear cache for list of all users
+			await deleteCache("/users");
+
+			//clear cache for this user
+			await deleteCache(`/users/id/${req.params.id}`);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,

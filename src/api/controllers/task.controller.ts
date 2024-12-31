@@ -6,6 +6,8 @@ import { NextFunction, Request, Response } from "express";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { BaseError } from "../../utils/errors/baseError";
 import { ClientError } from "../../utils/errors/clientError";
+import { saveCache } from "../../data/cache/saveCache";
+import { deleteCache } from "../../data/cache/deleteCache";
 
 export default class TaskController {
 	constructor(private taskRepo: ITaskRepo) {
@@ -25,6 +27,9 @@ export default class TaskController {
 			}
 			const create = await this.taskRepo.create(taskData);
 			if (create) {
+				//clear cache for list of all tasks
+				await deleteCache("/tasks");
+
 				return res
 					.status(HttpStatusCode.CREATED)
 					.json({ message: "Task created successfully" });
@@ -62,6 +67,10 @@ export default class TaskController {
 				);
 			}
 			const tasks = await this.taskRepo.findAll(query);
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, tasks);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				totalResults: tasks.length,
@@ -85,6 +94,9 @@ export default class TaskController {
 				);
 			}
 
+			// Save data to Redis cache for future requests
+			await saveCache(req, task);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				task,
@@ -106,6 +118,9 @@ export default class TaskController {
 				);
 			}
 
+			// Save data to Redis cache for future requests
+			await saveCache(req, task);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				task,
@@ -126,6 +141,12 @@ export default class TaskController {
 					"No tasks matching the ID"
 				);
 			}
+
+			//clear cache for list of all tasks
+			await deleteCache("/tasks");
+
+			//clear cache for this task
+			await deleteCache(`/tasks/id/${req.params.id}`);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
@@ -163,6 +184,12 @@ export default class TaskController {
 					"No tasks matching the ID"
 				);
 			}
+
+			//clear cache for list of all tasks
+			await deleteCache("/tasks");
+
+			//clear cache for this task
+			await deleteCache(`/tasks/id/${id}`);
 
 			res.status(HttpStatusCode.CREATED).json({
 				success: true,

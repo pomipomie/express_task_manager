@@ -6,6 +6,7 @@ import {
 	findTaskValidator,
 } from "../validators/task.validator";
 import { IDValidator } from "../validators/common.validator";
+import { cacheMiddleware } from "../../data/cache/cacheMiddleware";
 
 const router = Router();
 
@@ -26,19 +27,24 @@ router.post(
 );
 
 // GET /tasks/
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const tasks = await taskController.getAllTasks(req, res, next);
-		res.json(tasks);
-	} catch (error) {
-		next(error);
+router.get(
+	"/",
+	cacheMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const tasks = await taskController.getAllTasks(req, res, next);
+			res.json(tasks);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /tasks/id/:id
 router.get(
 	"/id/:id",
 	IDValidator,
+	cacheMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await taskController.getTaskById(req, res, next);
@@ -52,6 +58,7 @@ router.get(
 router.get(
 	"/find",
 	findTaskValidator,
+	cacheMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await taskController.findTask(req, res, next);

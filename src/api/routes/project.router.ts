@@ -6,6 +6,7 @@ import {
 	findProjectValidator,
 } from "../validators/project.validator";
 import { IDValidator } from "../validators/common.validator";
+import { cacheMiddleware } from "../../data/cache/cacheMiddleware";
 
 const router = Router();
 
@@ -26,19 +27,24 @@ router.post(
 );
 
 // GET /projects/
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-	try {
-		const projects = await projectController.getAllProjects(req, res, next);
-		res.json(projects);
-	} catch (error) {
-		next(error);
+router.get(
+	"/",
+	cacheMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const projects = await projectController.getAllProjects(req, res, next);
+			res.json(projects);
+		} catch (error) {
+			next(error);
+		}
 	}
-});
+);
 
 // GET /projects/id/:id
 router.get(
 	"/id/:id",
 	IDValidator,
+	cacheMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await projectController.getProjectById(req, res, next);
@@ -52,6 +58,7 @@ router.get(
 router.get(
 	"/find",
 	findProjectValidator,
+	cacheMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await projectController.findProject(req, res, next);

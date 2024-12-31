@@ -5,6 +5,8 @@ import { NextFunction, Request, Response } from "express";
 import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { BaseError } from "../../utils/errors/baseError";
+import { saveCache } from "../../data/cache/saveCache";
+import { deleteCache } from "../../data/cache/deleteCache";
 
 export default class ProjectController {
 	constructor(private projectRepo: IProjectRepo) {}
@@ -22,6 +24,9 @@ export default class ProjectController {
 			}
 			const create = await this.projectRepo.create(projectData);
 			if (create) {
+				//clear cache for list of all projects
+				await deleteCache("/projects");
+
 				return res
 					.status(HttpStatusCode.CREATED)
 					.json({ message: "Project created successfully" });
@@ -41,7 +46,6 @@ export default class ProjectController {
 	getAllProjects = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const query = req.query;
-			console.log(query, query._id);
 			if (
 				query._id &&
 				!mongoose.Types.ObjectId.isValid(
@@ -60,6 +64,10 @@ export default class ProjectController {
 				);
 			}
 			const projects = await this.projectRepo.findAll(query);
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, projects);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				totalResults: projects.length,
@@ -83,6 +91,9 @@ export default class ProjectController {
 				);
 			}
 
+			// Save data to Redis cache for future requests
+			await saveCache(req, project);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				project,
@@ -104,6 +115,9 @@ export default class ProjectController {
 				);
 			}
 
+			// Save data to Redis cache for future requests
+			await saveCache(req, project);
+
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				project,
@@ -124,6 +138,12 @@ export default class ProjectController {
 					"No projects matching the required ID"
 				);
 			}
+
+			//clear cache for list of all projects
+			await deleteCache("/projects");
+
+			//clear cache for this user
+			await deleteCache(`/projects/id/${req.params.id}`);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
@@ -164,6 +184,12 @@ export default class ProjectController {
 					"No projects matching the required ID"
 				);
 			}
+
+			//clear cache for list of all projects
+			await deleteCache("/projects");
+
+			//clear cache for this user
+			await deleteCache(`/projects/id/${id}`);
 
 			res.status(HttpStatusCode.CREATED).json({
 				success: true,

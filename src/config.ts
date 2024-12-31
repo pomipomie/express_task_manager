@@ -8,4 +8,5 @@ export default {
 	ENV: process.env.NODE_ENV || "development",
 	URL: process.env.URL,
 	JWT_SECRET: process.env.JWT_SECRET || "246789",
+	REDIS_URI: process.env.REDIS_URI,
 };

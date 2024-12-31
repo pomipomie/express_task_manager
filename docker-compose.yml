@@ -14,5 +14,12 @@ services:
     volumes:
       - taskmanager-mongo-data:/data/db
 
+  redis-taskmanager:
+    image: "redis/redis-stack-server:latest"
+    container_name: redis-taskmanager
+    hostname: redis-taskmanager
+    ports:
+      - "6379:6379"
+
 volumes:
   taskmanager-mongo-data:
