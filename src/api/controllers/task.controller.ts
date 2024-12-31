@@ -109,6 +109,23 @@ export default class TaskController {
 	findTask = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const query = req.query;
+			if (
+				query._id &&
+				!mongoose.Types.ObjectId.isValid(
+					query._id as
+						| string
+						| number
+						| mongoose.mongo.BSON.ObjectId
+						| mongoose.mongo.BSON.ObjectIdLike
+						| Uint8Array
+				)
+			) {
+				throw new ClientError(
+					"Error getting tasks IDs",
+					HttpStatusCode.BAD_REQUEST,
+					"Invalid ObjectId"
+				);
+			}
 			const task = await this.taskRepo.findOne(query);
 			if (!task) {
 				throw new ClientError(
@@ -124,6 +141,31 @@ export default class TaskController {
 			res.status(HttpStatusCode.OK).json({
 				success: true,
 				task,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	findManyTasks = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const query = req.query;
+			const tasks = await this.taskRepo.findAll(query);
+
+			if (tasks.length === 0) {
+				throw new ClientError(
+					"No tasks found",
+					HttpStatusCode.NOT_FOUND,
+					"No tasks matching the query"
+				);
+			}
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, tasks);
+
+			res.status(HttpStatusCode.OK).json({
+				success: true,
+				tasks,
 			});
 		} catch (error) {
 			next(error);

@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../../app"; // Adjust this to your app's entry point
+import app from "../../app";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 
 describe("User Endpoints", () => {

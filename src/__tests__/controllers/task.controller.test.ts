@@ -5,7 +5,6 @@ import { ClientError } from "../../utils/errors/clientError";
 import { deleteCache } from "../../data/cache/deleteCache";
 import { saveCache } from "../../data/cache/saveCache";
 import TaskController from "../../api/controllers/task.controller";
-import MockTaskRepo from "../mocks/taskRepository.mock";
 import { Task } from "../../domain/entities/task.entity";
 
 // Mock the cache methods
@@ -31,6 +30,7 @@ describe("TaskController", () => {
 			findAll: jest.fn(),
 			findById: jest.fn(),
 			findOne: jest.fn(),
+			findMany: jest.fn(),
 			findPaging: jest.fn(),
 			deleteOne: jest.fn(),
 			updateOne: jest.fn(),
@@ -110,6 +110,23 @@ describe("TaskController", () => {
 		expect(next).toHaveBeenCalledWith(
 			expect.any(ClientError) // Verify next is called with a ClientError
 		);
+	});
+
+	it("should retrieve all tasks matching the given query successfully", async () => {
+		const tasks = [{ id: "1", name: "Task 1", status: "Pending" }];
+		req.query = { status: "Pending" };
+		MockTaskRepo.findAll.mockResolvedValue(tasks as Task[]);
+
+		await taskController.getAllTasks(req as Request, res as Response, next);
+
+		expect(MockTaskRepo.findAll).toHaveBeenCalledWith(req.query);
+		expect(saveCache).toHaveBeenCalledWith(req, tasks);
+		expect(res.status).toHaveBeenCalledWith(HttpStatusCode.OK);
+		expect(res.json).toHaveBeenCalledWith({
+			success: true,
+			totalResults: tasks.length,
+			results: tasks,
+		});
 	});
 
 	it("should delete a task successfully", async () => {

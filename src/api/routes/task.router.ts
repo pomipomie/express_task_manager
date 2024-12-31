@@ -68,6 +68,20 @@ router.get(
 	}
 );
 
+// GET /tasks/findmany?=query
+router.get(
+	"/findmany",
+	findTaskValidator,
+	cacheMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await taskController.findManyTasks(req, res, next);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
 // PUT /tasks/update/:id
 
 router.put(

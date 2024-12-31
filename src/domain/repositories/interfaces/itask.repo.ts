@@ -10,6 +10,8 @@ export default interface ITaskRepo {
 
 	findById(id: string): Promise<Task | null>;
 
+	findMany(query: TQuery): Promise<Task[]>;
+
 	findPaging(
 		query: TQuery,
 		offset: number,

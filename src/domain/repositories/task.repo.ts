@@ -46,6 +46,13 @@ export default class TaskRepo implements ITaskRepo {
 		return entities;
 	}
 
+	async findMany(query: TQuery): Promise<TaskEntity[]> {
+		const queryObj = { ...Mapper.toQuery(query) };
+		const docs = await Task.find(queryObj);
+		const entities = docs.map((doc) => Mapper.toEntity(doc));
+		return entities;
+	}
+
 	async count(query: TQuery): Promise<number> {
 		let queryObj = { ...Mapper.toQuery(query) };
 		const count = await Task.countDocuments(queryObj);

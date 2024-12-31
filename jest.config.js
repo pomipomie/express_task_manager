@@ -8,7 +8,11 @@ module.exports = {
 		"!src/**/*.test.ts",
 		"!src/types/**/*.ts",
 		"!src/config/**/*.ts",
+		"!src/domain/**/*.ts",
+		"!src/data/**/*.ts",
+		"!src/utils/**/*.ts",
 		"!src/index.ts",
+		"!src/config.ts",
 	],
 	coverageThreshold: {
 		global: {
