@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../docs/swaggerConfig";
 import mongoose from "mongoose";
 import { Request, Response } from "express";
+import { errorHandler } from "./api/middlewares/errorHandler";
 
 const app: Express = express();
 
@@ -17,6 +18,9 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(router);
+
+// Error handler middleware
+app.use(errorHandler);
 
 mongoose
 	.connect(config.MONGO_URI)
