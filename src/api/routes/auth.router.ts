@@ -14,7 +14,47 @@ const userRepository = new UserRepo();
 const authService = new AuthService(userRepository, config.JWT_SECRET);
 const authController = new AuthController(authService);
 
-//POST /users/signup
+//POST /auth/signup
+/**
+ * @swagger
+ * /auth/signup:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
+ *               password:
+ *                 type: string
+ *                 example: "securepassword"
+ *               email:
+ *                 type: string
+ *                 example: "johndoe@example.com"
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "User registered successfully"
+ *       400:
+ *         description: Bad request or validation error
+ */
+
 router.post(
 	"/signup",
 	createUserValidator,
@@ -27,7 +67,45 @@ router.post(
 	}
 );
 
-//POST /users/login
+//POST /auth/login
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Log in a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
+ *               password:
+ *                 type: string
+ *                 example: "securepassword"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *       401:
+ *         description: Unauthorized - Invalid credentials
+ *       400:
+ *         description: Bad request or validation error
+ */
 router.post(
 	"/login",
 	loginUserValidator,

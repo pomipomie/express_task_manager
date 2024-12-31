@@ -39,6 +39,42 @@ router.use("/test", (req: Request, res: Response) => {
 	res.send("Express + TypeScript Server");
 });
 
+/**
+ * @swagger
+ * /db-status:
+ *   get:
+ *     summary: Check the database connection status
+ *     responses:
+ *       200:
+ *         description: Database is connected
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Database is connected"
+ *       500:
+ *         description: Database connection failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Connection failed"
+ *                 message:
+ *                   type: string
+ *                   example: "Database is not connected"
+ */
 router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const isConnected = connection.readyState === 1;
@@ -63,6 +99,42 @@ router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 });
 
 //clear cache
+/**
+ * @swagger
+ * /clearcache:
+ *   post:
+ *     summary: Clears all cached data in Redis
+ *     responses:
+ *       200:
+ *         description: Cache cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Cache cleared"
+ *       501:
+ *         description: Failed to clear cache
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Error clearing cache"
+ *                 message:
+ *                   type: string
+ *                   example: "Failed to clear cache"
+ */
 router.use("/clearcache", async (req: Request, res: Response) => {
 	try {
 		await redisClient.flushAll(); // Clears all Redis data
@@ -80,6 +152,29 @@ router.use("/clearcache", async (req: Request, res: Response) => {
 });
 
 // Catch-all for undefined routes
+/**
+ * @swagger
+ * /{path*}:
+ *   all:
+ *     summary: Catch-all for undefined routes
+ *     responses:
+ *       404:
+ *         description: Route not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Error 404"
+ *                 message:
+ *                   type: string
+ *                   example: "Route not found"
+ */
 router.use((req: Request, res: Response, next: NextFunction) => {
 	throw new ClientError(
 		"Error 404",

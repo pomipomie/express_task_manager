@@ -17,6 +17,24 @@ const swaggerOptions: SwaggerOptions = {
 		],
 	},
 	apis: ["./src/api/routes/*.ts", "./src/data/models/*.ts"],
+	tags: [
+		{
+			name: "Tasks",
+			description: "Operations related to task management",
+		},
+		{
+			name: "Projects",
+			description: "Operations related to project management",
+		},
+		{
+			name: "Users",
+			description: "Operations related to user management",
+		},
+		{
+			name: "Auth",
+			description: "Operations related to authentication",
+		},
+	],
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
