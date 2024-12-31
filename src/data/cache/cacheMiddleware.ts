@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import redisClient from "./redisClient";
+import { logger } from "../../utils/logger";
 
 export const cacheMiddleware = async (
 	req: Request,
@@ -11,14 +12,14 @@ export const cacheMiddleware = async (
 		const cachedData = await redisClient.get(key);
 
 		if (cachedData) {
-			console.log("Cache hit");
+			logger.info("Cache hit");
 		} else {
-			console.log("Cache miss");
+			logger.info("Cache miss");
 		}
 
 		next();
 	} catch (error) {
-		console.error("Error in cache middleware:", error);
+		logger.error("Error in cache middleware:", error);
 		next();
 	}
 };

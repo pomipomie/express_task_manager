@@ -5,6 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "../docs/swaggerConfig";
 import mongoose from "mongoose";
 import { errorHandler } from "./api/middlewares/errorHandler";
+import { logger } from "./utils/logger";
 
 const app: Express = express();
 
@@ -24,10 +25,10 @@ app.use(errorHandler);
 mongoose
 	.connect(config.MONGO_URI)
 	.then(() => {
-		console.log("MongoDB connected successfully");
+		logger.info("MongoDB connected successfully");
 	})
 	.catch((err) => {
-		console.error("Error connecting to MongoDB:", err);
+		logger.error("Error connecting to MongoDB:", err);
 	});
 
 export default app;

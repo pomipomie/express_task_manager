@@ -153,7 +153,7 @@ export default class TaskController {
 				message: "Task deleted successfully",
 			});
 		} catch (error) {
-			console.error(error);
+			next(error);
 		}
 	};
 
