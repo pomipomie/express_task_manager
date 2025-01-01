@@ -99,11 +99,7 @@ router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 			);
 		}
 	} catch (err) {
-		throw new APIError(
-			"Connection failed",
-			HttpStatusCode.INTERNAL_SERVER,
-			"Error checking database connection"
-		);
+		next(err);
 	}
 });
 
