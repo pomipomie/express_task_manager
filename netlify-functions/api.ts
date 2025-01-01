@@ -42,6 +42,7 @@ api.use(errorHandler);
 mongoose
 	.set("bufferCommands", false)
 	.connect(config.MONGO_URI, {
+		dbName: "mongodb-taskmanager",
 		tls: true,
 		tlsAllowInvalidCertificates: true,
 		maxPoolSize: 10,
