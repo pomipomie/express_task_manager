@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import { errorHandler } from "./api/middlewares/errorHandler";
 import { logger } from "./utils/logger";
 import { rateLimiter } from "./utils/rateLimiter";
+import CompressionMiddleware from "./api/middlewares/compression.middleware";
 
 const app: Express = express();
 
@@ -16,6 +17,9 @@ app.use(express.json());
 
 // Rate limit
 app.use(rateLimiter);
+
+// Compression middleware
+app.use(CompressionMiddleware);
 
 // Swagger setup
 app.use("/api-docs", swaggerSetup.serve, swaggerSetup.setup);
