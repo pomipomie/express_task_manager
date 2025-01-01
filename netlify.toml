@@ -8,3 +8,8 @@
   from = "/api/*"
   status = 200
   to = "/.netlify/functions/api/:splat"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"

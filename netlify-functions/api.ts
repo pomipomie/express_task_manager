@@ -25,11 +25,11 @@ const corsOptions = {
 
 api.use(cors(corsOptions));
 
-// Rate limit
-api.use(rateLimiter);
-
 // Compression middleware
 api.use(CompressionMiddleware);
+
+// Rate limit
+api.use(rateLimiter);
 
 api.use("/api", router);
 

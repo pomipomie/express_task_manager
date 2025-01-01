@@ -26,11 +26,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Rate limit
-app.use(rateLimiter);
-
 // Compression middleware
 app.use(CompressionMiddleware);
+
+// Rate limit
+app.use(rateLimiter);
 
 // Swagger setup
 app.use("/api-docs", swaggerSetup.serve, swaggerSetup.setup);
