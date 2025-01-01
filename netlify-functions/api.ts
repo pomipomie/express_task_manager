@@ -39,22 +39,40 @@ api.use("/api/api-docs", swaggerSetup.serve, swaggerSetup.setup);
 // Error handler middleware
 api.use(errorHandler);
 
-mongoose
-	// .set("bufferCommands", false)
-	.set("debug", true)
-	.connect(config.MONGO_URI, {
-		dbName: "mongodb-taskmanager",
-		tls: true,
-		tlsAllowInvalidCertificates: true,
-		maxPoolSize: 10,
-	})
-	.then(() => {
+// mongoose
+// 	// .set("bufferCommands", false)
+// 	.set("debug", true)
+// 	.connect(config.MONGO_URI, {
+// 		dbName: "mongodb-taskmanager",
+// 		tls: true,
+// 		tlsAllowInvalidCertificates: true,
+// 		maxPoolSize: 10,
+// 	})
+// 	.then(() => {
+// 		logger.info("MongoDB connected successfully");
+// 	})
+// 	.catch((err) => {
+// 		logger.error("Error connecting to MongoDB:", err);
+// 		logger.debug("Full error stack:", err.stack);
+// 		console.log("console.log:", err.stack);
+// 	});
+
+(async () => {
+	try {
+		console.log("console.log", config.MONGO_URI);
+		logger.info("logger");
+		await mongoose.connect(config.MONGO_URI, {
+			dbName: "mongodb-taskmanager",
+			tls: true,
+			tlsAllowInvalidCertificates: true,
+			maxPoolSize: 10,
+		});
 		logger.info("MongoDB connected successfully");
-	})
-	.catch((err) => {
-		logger.error("Error connecting to MongoDB:", err);
+	} catch (err: any) {
+		logger.error("Error connecting to MongoDB:", err.message);
 		logger.debug("Full error stack:", err.stack);
-		console.log("console.log:", err.stack);
-	});
+		throw new Error("MongoDB connection failed"); // Throw error to bubble up in Netlify logs
+	}
+})();
 
 export const handler = serverless(api);
