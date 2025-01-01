@@ -20,10 +20,10 @@ api.use(rateLimiter);
 // Compression middleware
 api.use(CompressionMiddleware);
 
+api.use("/api", router);
+
 // Swagger setup
 api.use("/api-docs", swaggerSetup.serve, swaggerSetup.setup);
-
-api.use(router);
 
 // Error handler middleware
 api.use(errorHandler);
