@@ -15,6 +15,10 @@ const api: Express = express();
 // Middleware to parse JSON request body
 api.use(express.json());
 
+process.on("unhandledRejection", (err) => {
+	logger.error("Unhandled Rejection:", err);
+});
+
 // CORS configuration
 const corsOptions = {
 	origin: process.env.CLIENT_URL || "https://calm-trifle-c49bb1.netlify.app/",
@@ -59,12 +63,11 @@ api.use(errorHandler);
 
 (async () => {
 	try {
-		console.log("console.log", config.MONGO_URI);
-		logger.info("logger");
+		mongoose.set("debug", true);
 		await mongoose.connect(config.MONGO_URI, {
 			dbName: "mongodb-taskmanager",
-			tls: true,
-			tlsAllowInvalidCertificates: true,
+			// tls: true,
+			// tlsAllowInvalidCertificates: true,
 			maxPoolSize: 10,
 		});
 		logger.info("MongoDB connected successfully");
