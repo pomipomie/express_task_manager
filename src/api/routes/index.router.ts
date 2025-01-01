@@ -78,6 +78,14 @@ router.use("/test", (req: Request, res: Response) => {
  */
 router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 	try {
+		const mongoUri = process.env.MONGO_URI;
+		if (!mongoUri) {
+			throw new APIError(
+				"Missing Mongo URI",
+				HttpStatusCode.INTERNAL_SERVER,
+				"Error finding a valid Mongo URI"
+			);
+		}
 		const isConnected = connection.readyState === 1;
 		if (isConnected) {
 			res

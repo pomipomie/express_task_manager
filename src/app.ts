@@ -7,6 +7,7 @@ import { errorHandler } from "./api/middlewares/errorHandler";
 import { logger } from "./utils/logger";
 import { rateLimiter } from "./utils/rateLimiter";
 import CompressionMiddleware from "./api/middlewares/compression.middleware";
+import cors from "cors";
 
 const app: Express = express();
 
@@ -14,6 +15,16 @@ app.set("port", config.PORT);
 
 // Middleware to parse JSON request body
 app.use(express.json());
+
+// CORS configuration
+const corsOptions = {
+	origin: process.env.URL || "https://calm-trifle-c49bb1.netlify.app/",
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Rate limit
 app.use(rateLimiter);
