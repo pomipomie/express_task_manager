@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "../../app";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
-import Task from "../../data/models/task.model";
+import Project from "../../data/models/project.model";
 
 jest.mock("../../api/middlewares/auth.middleware", () => ({
 	authenticateToken: jest.fn((req, res, next) => {
@@ -35,14 +35,14 @@ jest.mock("../../api/middlewares/auth.middleware", () => ({
 	}),
 }));
 
-describe("Task Routes Integration Tests", () => {
-	let existingTaskId: string = "67731c7fbf1da59419417133"; // Change to match actual IDs
+describe("Project Routes Integration Tests", () => {
+	let existingProjectId: string = "67754cf924dcce89f0808b85"; // Change to match actual IDs
 
 	// Test middleware
-	describe("GET /tasks", () => {
+	describe("GET /projects", () => {
 		it("should allow access with valid token", async () => {
 			const response = await request(app)
-				.get("/tasks") // Replace with your route
+				.get("/projects") // Replace with your route
 				.set("Authorization", "Bearer valid_token"); // Valid token
 
 			expect(response.status).toBe(200);
@@ -50,154 +50,149 @@ describe("Task Routes Integration Tests", () => {
 		});
 	});
 
-	describe("GET /tasks", () => {
+	describe("GET /projects", () => {
 		it("should deny access without token", async () => {
-			const response = await request(app).get("/tasks"); // No token
+			const response = await request(app).get("/projects"); // No token
 
 			expect(response.status).toBe(401);
 		});
 
 		it("should deny access with invalid token", async () => {
 			const response = await request(app)
-				.get("/tasks")
+				.get("/projects")
 				.set("Authorization", "Bearer invalidtoken"); // Invalid token
 
 			expect(response.status).toBe(401);
 		});
 	});
 
-	// Test POST /tasks/new (Create a new task)
-	describe("POST /tasks/new", () => {
-		it("should create a new task", async () => {
-			const newTask = {
-				name: `New task ${Math.random() * 100}`,
-				description: "This is a test task",
+	// Test POST /projects/new (Create a new project)
+	describe("POST /projects/new", () => {
+		it("should create a new project", async () => {
+			const newProject = {
+				name: `New project ${Math.random() * 100}`,
+				description: "This is a test project",
 				users: [],
-				project: "6772fdd364b7e89844146946",
 				status: "Pending",
 				dueDate: "2024-12-31",
 			};
 
 			const response = await request(app)
-				.post("/tasks/new")
+				.post("/projects/new")
 				.set("Authorization", "Bearer valid_token") // Valid token
-				.send(newTask)
+				.send(newProject)
 				.expect(HttpStatusCode.CREATED || HttpStatusCode.CONFLICT);
 
-			expect(response.body.message).toBe("Task created successfully");
+			expect(response.body.message).toBe("Project created successfully");
 		});
 	});
 
-	// Test GET /tasks/ (Retrieve all tasks)
-	describe("GET /tasks/", () => {
-		it("should return a list of tasks", async () => {
+	// Test GET /projects/ (Retrieve all projects)
+	describe("GET /projects/", () => {
+		it("should return a list of projects", async () => {
 			const response = await request(app)
-				.get("/tasks/")
+				.get("/projects/")
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.OK);
 			expect(response.body).toHaveProperty("results");
 			expect(response.body.results).toBeInstanceOf(Object);
-			expect(response.body.results.length).toBeGreaterThan(0); // Assuming there is at least one task in the database
+			expect(response.body.results.length).toBeGreaterThan(0); // Assuming there is at least one project in the database
 		});
 	});
 
-	// Test GET /tasks/id/:id (Retrieve a task by ID)
-	describe("GET /tasks/id/:id", () => {
-		it("should return a task by ID", async () => {
+	// Test GET /projects/id/:id (Retrieve a project by ID)
+	describe("GET /projects/id/:id", () => {
+		it("should return a project by ID", async () => {
 			const response = await request(app)
-				.get(`/tasks/id/${existingTaskId}`)
+				.get(`/projects/id/${existingProjectId}`)
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.OK);
 
-			expect(response.body.task).toHaveProperty("id", existingTaskId);
+			expect(response.body.project).toHaveProperty("id", existingProjectId);
 		});
 
-		it("should return 404 if task not found", async () => {
+		it("should return 404 if project not found", async () => {
 			const nonExistingId = "60e4d0f4f1f2b6c7258d33f5"; // Use an ID that does not exist in the DB
 			const response = await request(app)
-				.get(`/tasks/id/${nonExistingId}`)
+				.get(`/projects/id/${nonExistingId}`)
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.NOT_FOUND);
 
-			expect(response.body.message).toBe("No tasks matching the required ID");
+			expect(response.body.message).toBe(
+				"No projects matching the required ID"
+			);
 		});
 	});
 
-	// Test GET /tasks/find (Find tasks by query)
-	describe("GET /tasks/find", () => {
-		it("should find tasks by query", async () => {
+	// Test GET /projects/find (Find projects by query)
+	describe("GET /projects/find", () => {
+		it("should find projects by query", async () => {
 			const response = await request(app)
-				.get("/tasks/find")
-				.query({ name: "New Task" })
+				.get("/projects/find")
+				.query({ description: "This is a test project" })
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.OK);
-			expect(response.body.task).toHaveProperty("name", "New Task");
+			expect(response.body.project).toHaveProperty(
+				"description",
+				"This is a test project"
+			);
 		});
 	});
 
-	// Test GET /tasks/findmany (Find many tasks by query)
-	describe("GET /tasks/findmany", () => {
-		it("should return multiple tasks matching the query", async () => {
-			const response = await request(app)
-				.get("/tasks/findmany")
-				.query({ status: "Pending" }) // Query to match task descriptions
-				.set("Authorization", "Bearer valid_token") // Valid token
-				.expect(HttpStatusCode.OK);
-
-			expect(response.body.tasks.length).toBeGreaterThan(0); // Should return multiple tasks
-		});
-	});
-
-	// Test PUT /tasks/update/:id (Update a task)
-	describe("PUT /tasks/update/:id", () => {
-		it("should update a task", async () => {
-			const updatedTask = {
-				name: "Updated Task",
+	// Test PUT /projects/update/:id (Update a project)
+	describe("PUT /projects/update/:id", () => {
+		it("should update a project", async () => {
+			const updatedProject = {
+				name: "Updated Project",
 				description: "Updated description",
 			};
 
 			const response = await request(app)
-				.put(`/tasks/update/${existingTaskId}`)
-				.send(updatedTask)
+				.put(`/projects/update/${existingProjectId}`)
+				.send(updatedProject)
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.CREATED);
 		});
 
-		it("should return 404 for non-existing task", async () => {
+		it("should return 404 for non-existing project", async () => {
 			const nonExistingId = "60e4d0f4f1f2b6c7258d33f5";
 			const response = await request(app)
-				.put(`/tasks/update/${nonExistingId}`)
-				.send({ name: "Non Existing Task" })
+				.put(`/projects/update/${nonExistingId}`)
+				.send({ name: "Non Existing Project" })
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.NOT_FOUND);
 
-			expect(response.body.message).toBe("No tasks matching the ID");
+			expect(response.body.message).toBe(
+				"No projects matching the required ID"
+			);
 		});
 	});
 
-	// Test DELETE /tasks/delete/:id (Delete a task)
-	describe("DELETE /tasks/delete/:id", () => {
-		it("should delete a task", async () => {
+	// Test DELETE /projects/delete/:id (Delete a project)
+	describe("DELETE /projects/delete/:id", () => {
+		it("should delete a project", async () => {
 			const response = await request(app)
-				.delete(`/tasks/delete/${existingTaskId}`)
+				.delete(`/projects/delete/${existingProjectId}`)
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.OK);
 
-			expect(response.body.message).toBe("Task deleted successfully");
+			expect(response.body.message).toBe("Project deleted successfully");
 
-			// Verify the task is deleted
-			const task = await Task.findById(existingTaskId);
-			expect(task).toBeNull();
+			// Verify the project is deleted
+			const project = await Project.findById(existingProjectId);
+			expect(project).toBeNull();
 		});
 
-		it("should return 404 for non-existing task", async () => {
+		it("should return 404 for non-existing project", async () => {
 			const nonExistingId = "60e4d0f4f1f2b6c7258d33f5";
 			const response = await request(app)
-				.delete(`/tasks/delete/${nonExistingId}`)
+				.delete(`/projects/delete/${nonExistingId}`)
 				.set("Authorization", "Bearer valid_token") // Valid token
 				.expect(HttpStatusCode.NOT_FOUND);
 
-			expect(response.body.message).toBe("No tasks matching the ID");
+			expect(response.body.message).toBe(
+				"No projects matching the required ID"
+			);
 		});
 	});
 });

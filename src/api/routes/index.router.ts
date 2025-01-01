@@ -9,13 +9,14 @@ import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { ClientError } from "../../utils/errors/clientError";
 import redisClient from "../../data/cache/redisClient";
 import { BaseError } from "../../utils/errors/baseError";
+import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.use("/users", userRouter);
+router.use("/users", authenticateToken, userRouter);
 router.use("/auth", authRouter);
-router.use("/projects", projectRouter);
-router.use("/tasks", taskRouter);
+router.use("/projects", authenticateToken, projectRouter);
+router.use("/tasks", authenticateToken, taskRouter);
 
 // test route (delete later)
 /**

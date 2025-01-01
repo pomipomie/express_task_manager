@@ -16,6 +16,25 @@ const swaggerOptions: SwaggerOptions = {
 			},
 		],
 	},
+	components: {
+		securitySchemes: {
+			BasicAuth: {
+				type: "http",
+				scheme: "basic",
+			},
+			BearerAuth: {
+				type: "http",
+				scheme: "bearer",
+				bearerFormat: "JWT",
+			},
+		},
+	},
+	security: [
+		{
+			BasicAuth: [],
+			BearerAuth: [],
+		},
+	],
 	apis: ["./src/api/routes/*.ts", "./src/data/models/*.ts"],
 	tags: [
 		{

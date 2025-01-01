@@ -22,11 +22,11 @@ export const errorHandler = (
 			message: err.message,
 		});
 	} else {
-		logger.error("Unexpected Error:", err);
+		logger.error("Unexpected Error:", err.name, err.message);
 		res.status(HttpStatusCode.INTERNAL_SERVER).json({
 			success: false,
-			name: "Internal Server Error",
-			message: "An unexpected error occurred.",
+			name: err.name ?? "Internal Server Error",
+			message: err.message ?? "An unexpected error occurred.",
 		});
 	}
 };

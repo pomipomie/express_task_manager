@@ -82,8 +82,7 @@ export default class AuthService implements IAuthService {
 			}
 		);
 		user.auth.token = token;
-		// see if a setter is needed for saving token
-		// maybe token should not be an auth property?
+		console.log("token", user.auth.token); // for testing purposes
 
 		return { token };
 	};

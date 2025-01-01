@@ -1,8 +1,7 @@
 import express, { Express } from "express";
 import router from "./api/routes/index.router";
 import config from "./config";
-import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "../docs/swaggerConfig";
+import { swaggerSetup } from "../docs/swagger";
 import mongoose from "mongoose";
 import { errorHandler } from "./api/middlewares/errorHandler";
 import { logger } from "./utils/logger";
@@ -15,7 +14,7 @@ app.set("port", config.PORT);
 app.use(express.json());
 
 // Swagger setup
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerSetup.serve, swaggerSetup.setup);
 
 app.use(router);
 

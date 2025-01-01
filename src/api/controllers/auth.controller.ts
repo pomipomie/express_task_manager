@@ -5,6 +5,7 @@ import { LoginInput } from "../../domain/dto/auth.dto";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { BaseError } from "../../utils/errors/baseError";
 import { ClientError } from "../../utils/errors/clientError";
+import redisClient from "../../data/cache/redisClient";
 
 export default class AuthController {
 	constructor(private authService: AuthService) {}
@@ -75,9 +76,28 @@ export default class AuthController {
 		}
 	};
 
-	//TO IMPLEMENT
 	logout = async (req: Request, res: Response, next: NextFunction) => {
 		try {
-		} catch (error) {}
+			const token = req.headers.authorization?.split(" ")[1];
+			if (!token) {
+				throw new ClientError(
+					"Missing token",
+					HttpStatusCode.BAD_REQUEST,
+					"No token provided"
+				);
+			}
+
+			// Add the token to the blacklist
+			await redisClient.set(token, "blacklisted", {
+				EX: 60 * 60, // Expiration time in seconds
+			}); // Expire after 1 hour or token lifetime
+
+			res.status(HttpStatusCode.OK).json({
+				success: true,
+				message: "Successfully logged out",
+			});
+		} catch (error) {
+			next(error);
+		}
 	};
 }
