@@ -41,6 +41,7 @@ api.use(errorHandler);
 
 mongoose
 	.connect(config.MONGO_URI)
+	.then(() => logger.debug(config.MONGO_URI))
 	.then(() => {
 		logger.info("MongoDB connected successfully");
 	})
