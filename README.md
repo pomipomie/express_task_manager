@@ -4,13 +4,17 @@ A RESTful API for managing tasks built with Express.js and TypeScript.
 
 ## Features
 
-- CRUD operations for tasks
+- CRUD operations for tasks, projects and users
 - TypeScript for type safety
 - Express.js for routing and middleware
 - Jest for testing
 - MongoDB for data persistence
 - Input validation
 - Error handling
+- Rate limiting
+- Cache management with Redis
+- Logging with Winston
+- Response compression
 
 ## Prerequisites
 
@@ -31,10 +35,16 @@ cd express_task_manager
 npm install
 ```
 
-3. Create a `.env` file in the root directory and add your MongoDB connection string:
+1. Create a `.env` file in the root directory:
 ```
+
 MONGODB_URI=your_mongodb_connection_string
 PORT=3000
+NODE_ENV=development
+URL=http://localhost:3300
+JWT_SECRET=your_jwt_secret
+REDIS_URI=your_redis_connection_string
+
 ```
 
 4. Start the development server:
@@ -53,9 +63,9 @@ npm run dev
 [
   {
     "id": "string",
-    "title": "string",
+    "name": "string",
     "description": "string",
-    "status": "pending" | "completed"
+    "status": "pending" | "in progress" | "completed"
   }
 ]
 ```
@@ -65,9 +75,9 @@ npm run dev
 - **Body**:
 ```json
 {
-  "title": "string",
+  "name": "string",
   "description": "string",
-  "status": "pending" | "completed"
+  "status": "pending" | "in progress" | "completed"
 }
 ```
 - **Response**: Created task object
