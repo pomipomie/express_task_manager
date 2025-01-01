@@ -35,7 +35,14 @@ cd express_task_manager
 npm install
 ```
 
-1. Create a `.env` file in the root directory:
+3. Set your databases:
+   
+  - My current stack:
+    - Main database: MongoDB on Mongo Atlas.
+    - Cahe database: Redis on Rdis cloud.
+    - (Optional: run databases on docker)
+
+4. Create a `.env` file in the root directory:
 ```
 
 MONGODB_URI=your_mongodb_connection_string
@@ -47,7 +54,7 @@ REDIS_URI=your_redis_connection_string
 
 ```
 
-4. Start the development server:
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -140,6 +147,10 @@ src/
 3. **Express.js**: Lightweight and flexible web framework
 4. **Repository Pattern**: Separates data access from business logic
 5. **Jest**: Comprehensive testing framework
+
+## Deploy
+
+Currently available at https://calm-trifle-c49bb1.netlify.app/api/, but I still have problems with the Mongo Atlas conection. Still debugging.
 
 ## Testing
 
