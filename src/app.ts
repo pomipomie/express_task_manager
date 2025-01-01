@@ -5,6 +5,7 @@ import { swaggerSetup } from "../docs/swagger";
 import mongoose from "mongoose";
 import { errorHandler } from "./api/middlewares/errorHandler";
 import { logger } from "./utils/logger";
+import { rateLimiter } from "./utils/rateLimiter";
 
 const app: Express = express();
 
@@ -12,6 +13,9 @@ app.set("port", config.PORT);
 
 // Middleware to parse JSON request body
 app.use(express.json());
+
+// Rate limit
+app.use(rateLimiter);
 
 // Swagger setup
 app.use("/api-docs", swaggerSetup.serve, swaggerSetup.setup);
