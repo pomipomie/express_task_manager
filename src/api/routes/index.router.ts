@@ -79,7 +79,6 @@ router.use("/test", (req: Request, res: Response) => {
 router.use("/db-status", (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const mongoUri = process.env.MONGO_URI;
-		console.log(mongoUri);
 		if (!mongoUri) {
 			throw new APIError(
 				"Missing Mongo URI",

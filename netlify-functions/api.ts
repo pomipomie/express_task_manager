@@ -40,15 +40,18 @@ api.use("/api/api-docs", swaggerSetup.serve, swaggerSetup.setup);
 api.use(errorHandler);
 
 mongoose
+	.set("bufferCommands", false)
 	.connect(config.MONGO_URI, {
 		tls: true,
 		tlsAllowInvalidCertificates: true,
+		maxPoolSize: 10,
 	})
 	.then(() => {
 		logger.info("MongoDB connected successfully");
 	})
 	.catch((err) => {
 		logger.error("Error connecting to MongoDB:", err);
+		logger.debug("Full error stack:", err.stack);
 	});
 
 export const handler = serverless(api);
