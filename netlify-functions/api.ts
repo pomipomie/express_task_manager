@@ -40,8 +40,10 @@ api.use("/api/api-docs", swaggerSetup.serve, swaggerSetup.setup);
 api.use(errorHandler);
 
 mongoose
-	.connect(config.MONGO_URI)
-	.then(() => logger.debug(config.MONGO_URI))
+	.connect(config.MONGO_URI, {
+		tls: true,
+		tlsAllowInvalidCertificates: true,
+	})
 	.then(() => {
 		logger.info("MongoDB connected successfully");
 	})
