@@ -18,7 +18,7 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-	origin: process.env.URL || "https://calm-trifle-c49bb1.netlify.app/",
+	origin: "",
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	allowedHeaders: ["Content-Type", "Authorization"],
 	credentials: true,

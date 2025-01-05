@@ -150,7 +150,7 @@ src/
 
 ## Deploy
 
-Currently available at https://calm-trifle-c49bb1.netlify.app/api/, but I still have problems with the Mongo Atlas conection. Still debugging.
+Currently available at https://express-task-manager.onrender.com
 
 ## Testing
 
