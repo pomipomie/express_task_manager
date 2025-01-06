@@ -14,7 +14,6 @@
 	"license": "ISC",
 	"description": "",
 	"dependencies": {
-		"@netlify/angular-runtime": "^2.2.1",
 		"@netlify/functions": "^3.0.0",
 		"bcrypt": "^5.1.1",
 		"compression": "^1.7.5",
