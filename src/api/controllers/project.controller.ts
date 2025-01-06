@@ -162,13 +162,16 @@ export default class ProjectController {
 			// check if updated project name exists
 			if (updates.name) {
 				const exists = await this.projectRepo.exists(updates.name, id);
+				const thisProject = await this.projectRepo.findById(id);
 
-				if (exists) {
-					throw new ClientError(
-						"Duplicate project",
-						HttpStatusCode.CONFLICT,
-						"Project of the same name already exists"
-					);
+				if (thisProject) {
+					if (exists && thisProject.name !== updates.name) {
+						throw new ClientError(
+							"Duplicate project",
+							HttpStatusCode.CONFLICT,
+							"Project of the same name already exists"
+						);
+					}
 				}
 			}
 

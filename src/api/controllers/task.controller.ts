@@ -207,8 +207,9 @@ export default class TaskController {
 			// check if updated task name exists
 			if (updates.name) {
 				const exists = await this.taskRepo.exists(updates.name, id);
+				const thisTask = await this.taskRepo.findById(id);
 
-				if (exists) {
+				if (thisTask && exists && thisTask.name !== updates.name) {
 					throw new ClientError(
 						"Duplicate task",
 						HttpStatusCode.CONFLICT,

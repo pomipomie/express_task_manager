@@ -34,11 +34,11 @@ export default class AuthController {
 	login = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const loginData: LoginInput = req.body;
-			const login = await this.authService.login(loginData);
-			if (login) {
+			const { token } = await this.authService.login(loginData);
+			if (token) {
 				return res
 					.status(HttpStatusCode.OK)
-					.json({ message: "User logged in successfully" });
+					.json({ message: "User logged in successfully", token });
 			} else {
 				throw new BaseError(
 					"Error logging in user",
