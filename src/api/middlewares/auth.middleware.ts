@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import config from "../../config";
 import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import redisClient from "../../data/cache/redisClient";
 
 export async function authenticateToken(
 	req: Request,
@@ -25,6 +26,16 @@ export async function authenticateToken(
 				"Unauthorized",
 				HttpStatusCode.UNAUTHORIZED,
 				"Unauthorized access token"
+			);
+		}
+
+		// Check Redis for blacklisted token
+		const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+		if (isBlacklisted) {
+			throw new ClientError(
+				"Unauthorized",
+				HttpStatusCode.UNAUTHORIZED,
+				"Unauthorized access token. Token has been logged out."
 			);
 		}
 

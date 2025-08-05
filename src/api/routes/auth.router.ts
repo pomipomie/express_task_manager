@@ -8,11 +8,12 @@ import {
 	loginUserValidator,
 } from "../validators/auth.validator";
 import { authenticateToken } from "../middlewares/auth.middleware";
+import redisClient from "../../data/cache/redisClient";
 
 const router = Router();
 
 const userRepository = new UserRepo();
-const authService = new AuthService(userRepository, config.JWT_SECRET);
+const authService = new AuthService(userRepository, config.JWT_SECRET, redisClient);
 const authController = new AuthController(authService);
 
 //POST /auth/signup
@@ -114,9 +115,9 @@ router.post(
  *               - email
  *               - password
  *             properties:
- *               username:
+ *               email:
  *                 type: string
- *                 example: "johndoe"
+ *                 example: "johndoe@example.com"
  *               password:
  *                 type: string
  *                 example: "securepassword"

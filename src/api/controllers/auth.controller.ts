@@ -5,7 +5,6 @@ import { LoginInput } from "../../domain/dto/auth.dto";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { BaseError } from "../../utils/errors/baseError";
 import { ClientError } from "../../utils/errors/clientError";
-import redisClient from "../../data/cache/redisClient";
 
 export default class AuthController {
 	constructor(private authService: AuthService) {}
@@ -87,10 +86,7 @@ export default class AuthController {
 				);
 			}
 
-			// Add the token to the blacklist
-			await redisClient.set(token, "blacklisted", {
-				EX: 60 * 60, // Expiration time in seconds
-			}); // Expire after 1 hour or token lifetime
+			await this.authService.logout(token); 
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
