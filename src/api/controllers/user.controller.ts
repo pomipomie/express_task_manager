@@ -121,12 +121,15 @@ export default class UserController {
 				);
 			}
 
+			const responseUser = this.generateUserResponse(user);
+
+
 			// Save data to Redis cache for future requests
-			await saveCache(req, user);
+			await saveCache(req, responseUser);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
-				user,
+				responseUser,
 			});
 		} catch (error) {
 			next(error);
@@ -141,16 +144,18 @@ export default class UserController {
 				throw new ClientError(
 					"User not found",
 					HttpStatusCode.NOT_FOUND,
-					"No users matching the provided ID"
+					"No users matching the provided query"
 				);
 			}
 
+			const responseUser = this.generateUserResponse(user);
+
 			// Save data to Redis cache for future requests
-			await saveCache(req, user);
+			await saveCache(req, responseUser);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
-				user,
+				responseUser,
 			});
 		} catch (error) {
 			next(error);
@@ -195,10 +200,12 @@ export default class UserController {
 			//clear cache for this user
 			await deleteCache(`/users/id/${id}`);
 
+			const responseUser = this.generateUserResponse(updatedUser);
+
 			res.status(HttpStatusCode.CREATED).json({
 				success: true,
 				message: "User updated successfully",
-				user: updatedUser,
+				user:responseUser,
 			});
 		} catch (error) {
 			next(error);

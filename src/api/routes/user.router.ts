@@ -157,6 +157,88 @@ router.get(
 	}
 );
 
+// GET /users/findmany?query
+/**
+ * @swagger
+ * /users/findmany:
+ *   get:
+ *     tags: [Users]
+ *     summary: Find all users matching query parameters (no pagination)
+ *     description: Retrieve all users that match one or more filters. Returns all results without pagination or limit.
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         schema:
+ *           type: string
+ *           example: "64cfa1c1f43d4513c2a54f5a"
+ *         description: Filter by user ID
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: "admin@example.com"
+ *         description: Filter by user email
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           example: "admin"
+ *         description: Filter by user role
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *           example: "Alice"
+ *         description: Filter by user name
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved matching users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 totalResults:
+ *                   type: integer
+ *                   example: 3
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "64cfa1c1f43d4513c2a54f5a"
+ *                       name:
+ *                         type: string
+ *                         example: "Alice Doe"
+ *                       email:
+ *                         type: string
+ *                         example: "alice@example.com"
+ *                       role:
+ *                         type: string
+ *                         example: "user"
+ *       400:
+ *         description: Invalid query (e.g. malformed ObjectId)
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+	"/findmany",
+	findUserValidator,
+	cacheMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const users = await userController.findAllUsers(req, res, next);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
 // GET /users/paginated?page=_&limit=_&sort=_&order=_
 /**
  * @swagger
@@ -252,6 +334,7 @@ router.get(
  */
 router.get(
 	"/paginated",
+	findUserValidator,
 	cacheMiddleware,
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
