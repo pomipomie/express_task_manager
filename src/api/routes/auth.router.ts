@@ -21,13 +21,19 @@ const authController = new AuthController(authService);
  * /auth/signup:
  *   post:
  *     tags: [Auth]
- *     summary: Register a new user
+ *     summary: Registers a new user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - username
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - password
  *             properties:
  *               username:
  *                 type: string
@@ -59,9 +65,26 @@ const authController = new AuthController(authService);
  *                   type: string
  *                   example: "User registered successfully"
  *       400:
- *         description: Bad request or validation error
+ *         description: Bad request. Missing or invalid user details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Email already exists"
+ *       500:
+ *         description: Internal server error. Could not create user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error creating user."
  */
-
 router.post(
 	"/signup",
 	createUserValidator,
@@ -80,13 +103,16 @@ router.post(
  * /auth/login:
  *   post:
  *     tags: [Auth]
- *     summary: Log in a user
+ *     summary: Logs in a user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               username:
  *                 type: string
@@ -105,13 +131,34 @@ router.post(
  *                 success:
  *                   type: boolean
  *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Login successful"
  *                 token:
  *                   type: string
  *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
- *       401:
- *         description: Unauthorized - Invalid credentials
  *       400:
  *         description: Bad request or validation error
+ *       401:
+ *         description: Unauthorized. Invalid email or password.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid credentials"
+ *       500:
+ *         description: Internal server error during login.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Error processing login."
  */
 router.post(
 	"/login",
@@ -161,7 +208,7 @@ router.post(
  *               properties:
  *                 error:
  *                   type: string
- *                   example: "Access Denied. Token Missing."
+ *                   example: "Access Denied. Missing Token."
  *       500:
  *         description: Internal server error. An unexpected error occurred during logout processing.
  *         content:
