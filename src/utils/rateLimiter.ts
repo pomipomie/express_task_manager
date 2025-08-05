@@ -1,4 +1,4 @@
-import { rateLimit } from "express-rate-limit";
+import { rateLimit, ipKeyGenerator } from "express-rate-limit";
 
 export const rateLimiter = rateLimit({
 	windowMs: 5 * 60 * 1000, // 5 minutes
@@ -6,9 +6,10 @@ export const rateLimiter = rateLimit({
 	standardHeaders: true, // add the `RateLimit-*` headers to the response
 	legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
 	keyGenerator: (req) => {
-		const forwarded = req.headers["x-forwarded-for"];
-		return (
-			(Array.isArray(forwarded) ? forwarded[0] : forwarded) || req.ip || ""
-		);
+		// Use API key (or some other identifier) for authenticated users
+ 		if (req.query.apiKey) return req.query.apiKey as string;
+
+ 		// fallback to IP for unauthenticated users
+		return ipKeyGenerator(req.ip as string) // better
 	},
 });

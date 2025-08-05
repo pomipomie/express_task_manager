@@ -62,8 +62,8 @@ const TaskSchema = new Schema<ITask>(
 			virtuals: true, // Include virtual fields
 			transform: (doc, ret) => {
 				ret.id = ret._id.toString(); // Map `_id` to `id`
-				delete ret._id; // Remove `_id` from the output
-				delete ret.__v; // Remove `__v` (version key)
+				delete (ret as any)._id; // Remove `_id` from the output
+				delete (ret as any).__v; // Remove `__v` (version key)
 			},
 		},
 	}
