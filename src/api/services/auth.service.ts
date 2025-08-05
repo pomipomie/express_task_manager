@@ -83,7 +83,7 @@ export default class AuthService implements IAuthService {
 			}
 		);
 		user.auth.token = token;
-		console.log("token", user.auth.token); // for testing purposes
+		// console.log("token", user.auth.token); // for testing purposes
 
 		return { token };
 	};

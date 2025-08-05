@@ -107,12 +107,23 @@ router.get(
  *     summary: Find a user by query
  *     parameters:
  *       - in: query
- *         name: query
- *         required: true
+ *         name: name
  *         schema:
  *           type: string
- *           example: "name=John"
- *         description: Query to find users
+ *           example: "John"
+ *         description: Filter users by name
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: "john.doe@example.com"
+ *         description: Filter users by email
+ *       - in: query
+ *         name: _id
+ *         schema:
+ *           type: string
+ *           example: "64cfa1c1f43d4513c2a54f5a"
+ *         description: Filter users by ID
  *     responses:
  *       200:
  *         description: Successfully retrieved the user
@@ -140,6 +151,111 @@ router.get(
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			await userController.getUser(req, res, next);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+// GET /users/paginated?page=_&limit=_&sort=_&order=_
+/**
+ * @swagger
+ * /users/paginated:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get users with pagination
+ *     description: Retrieve users in paginated format with optional filters and sorting.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: Page number (default is 1)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Number of results per page (default is 10)
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           example: "createdAt"
+ *         description: Field to sort by (e.g. name, email, createdAt)
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           example: "desc"
+ *         description: Sort order - asc for ascending, desc for descending
+ *       - in: query
+ *         name: _id
+ *         schema:
+ *           type: string
+ *           example: "64cfa1c1f43d4513c2a54f5a"
+ *         description: Filter by user ID
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: "user@example.com"
+ *         description: Filter by email
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 page:
+ *                   type: integer
+ *                   example: 1
+ *                   default: 1
+ *                 limit:
+ *                   type: integer
+ *                   example: 10
+ *                   default: 10
+ *                 totalResults:
+ *                   type: integer
+ *                   example: 37
+ *                 totalPages:
+ *                   type: integer
+ *                   example: 4
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                         example: "64cfa1c1f43d4513c2a54f5a"
+ *                       name:
+ *                         type: string
+ *                         example: "Jane Doe"
+ *                       email:
+ *                         type: string
+ *                         example: "jane.doe@example.com"
+ *                       role:
+ *                         type: string
+ *                         example: "user"
+ *       400:
+ *         description: Invalid query or ObjectId
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+	"/paginated",
+	cacheMiddleware,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.findUsersPaginated(req, res, next);
 		} catch (error) {
 			next(error);
 		}
