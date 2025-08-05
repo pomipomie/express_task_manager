@@ -173,8 +173,6 @@ router.post(
 	}
 );
 
-//verify //TODO
-
 //logout
 /**
  * @swagger

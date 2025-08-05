@@ -51,30 +51,6 @@ export default class AuthController {
 		}
 	};
 
-	// see if it should be moved to middleware
-	verifyToken = async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const token = req.headers.authorization?.split(" ")[1];
-			if (!token) {
-				throw new ClientError(
-					"Unauthorized",
-					HttpStatusCode.UNAUTHORIZED,
-					"Unauthorized access token"
-				);
-			}
-			const decoded = await this.authService.verifyToken(token);
-
-			(req as any).user = decoded; // Attach user info to the request
-			next();
-		} catch (error) {
-			throw new ClientError(
-				`Invalid token`,
-				HttpStatusCode.UNAUTHORIZED,
-				`The token is not valid`
-			);
-		}
-	};
-
 	logout = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			const token = req.headers.authorization?.split(" ")[1];

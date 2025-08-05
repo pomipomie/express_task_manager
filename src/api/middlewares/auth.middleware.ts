@@ -40,12 +40,8 @@ export async function authenticateToken(
 		}
 
 		const decoded = jwt.verify(token, config.JWT_SECRET);
-		if (!decoded) {
-			throw new ClientError(
-				`Invalid token`,
-				HttpStatusCode.UNAUTHORIZED,
-				`The token is not valid`
-			);
+		if(!decoded) {
+			throw new ClientError("Invalid token", HttpStatusCode.UNAUTHORIZED, "The token is not valid.");
 		}
 		(req as any).user = decoded; // Attach user info to the request
 		next();

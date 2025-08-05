@@ -11,7 +11,5 @@ export default interface IAuthService {
 
 	login(loginInput: LoginInput): Promise<LoginOutput>;
 
-	verifyToken(token: string): Promise<JwtPayload>;
-
 	logout(token: string): Promise<void>;
 }

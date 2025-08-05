@@ -88,19 +88,6 @@ export default class AuthService implements IAuthService {
 		return { token };
 	};
 
-	verifyToken = async (token: string) => {
-		const decoded = jwt.verify(token, config.JWT_SECRET);
-		if (!decoded) {
-			throw new ClientError(
-				`Invalid token`,
-				HttpStatusCode.UNAUTHORIZED,
-				`The token is not valid`
-			);
-		}
-
-		return { decoded };
-	};
-
 	logout = async (token: string) => {
 		try {
 			// Decode token to get expiration timestamp
