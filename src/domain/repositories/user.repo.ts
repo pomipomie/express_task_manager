@@ -2,14 +2,16 @@ import { CreateParams, Query } from "../dto/user.dto";
 import IUserRepo from "./interfaces/iuser.repo";
 import User, { Mapper } from "../../data/models/user.model";
 import { User as UserEntity } from "../entities/user.entity";
+import bcrypt from 'bcrypt';
 
 export default class UserRepo implements IUserRepo {
 	async create(payload: CreateParams): Promise<UserEntity> {
+		const hashedPassword = await bcrypt.hash(payload.password, 10);
 		const userPayload = {
 			...payload, // Spread other fields from payload
 			auth: {
 				// Add the password inside the `auth` object
-				password: payload.password,
+				password: hashedPassword,
 			},
 		};
 		const doc = await User.create(userPayload);
