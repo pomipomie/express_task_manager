@@ -391,6 +391,63 @@ router.put(
 	}
 );
 
+// PUT /users/updatemany?query
+/**
+ * @swagger
+ * /users/updatemany:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update all users matching query parameters
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *           example: "admin@example.com"
+ *         description: Update by user email
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           example: "admin"
+ *         description: Update by user role
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *           example: "Alice"
+ *         description: Update by user name
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Jane Doe"
+ *               email:
+ *                 type: string
+ *                 example: "jane.doe@example.com"
+ *     responses:
+ *       200:
+ *         description: Users updated successfully
+ *       404:
+ *         description: Users not found
+ */
+router.put(
+	"/updatemany",
+	findUserValidator,
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			await userController.updateManyUsers(req, res, next);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
 // DELETE /users
 /**
  * @swagger

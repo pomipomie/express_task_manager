@@ -8,6 +8,7 @@ import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
 import { saveCache } from "../../data/cache/saveCache";
 import { deleteCache } from "../../data/cache/deleteCache";
+import { Query } from "../../domain/dto/user.dto";
 
 export default class UserController {
 	constructor(private repository: IUserRepo) {
@@ -29,7 +30,7 @@ export default class UserController {
 				)
 			) {
 				throw new ClientError(
-					"Error getting projects IDs",
+					"Error getting ID",
 					HttpStatusCode.BAD_REQUEST,
 					"Invalid ObjectId"
 				);
@@ -79,7 +80,7 @@ export default class UserController {
 				)
 			) {
 				throw new ClientError(
-					"Error getting projects IDs",
+					"Error getting ID",
 					HttpStatusCode.BAD_REQUEST,
 					"Invalid ObjectId"
 				);
@@ -212,6 +213,55 @@ export default class UserController {
 		}
 	};
 
+	updateManyUsers = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const filters = req.query;
+			const updates = req.body;
+
+			if (!updates || Object.keys(updates).length === 0) {
+				throw new ClientError(
+					"No update data provided",
+					HttpStatusCode.BAD_REQUEST,
+					"Request body must contain fields to update"
+				);
+			}
+
+			if (
+				filters._id &&
+				!mongoose.Types.ObjectId.isValid(
+					filters._id as
+						| string
+						| number
+						| mongoose.mongo.BSON.ObjectId
+						| mongoose.mongo.BSON.ObjectIdLike
+						| Uint8Array
+				)
+			) {
+				throw new ClientError(
+					"Error getting ID",
+					HttpStatusCode.BAD_REQUEST,
+					"Invalid ObjectId"
+				);
+			}
+
+			// Merge filters and updates into one object for the repo
+			const query: Query = {
+				...filters,
+				...updates,
+			};
+
+			const updatedCount = await this.repository.updateMany(query);
+
+			res.status(HttpStatusCode.OK).json({
+				success: true,
+				message: `${updatedCount} user(s) updated`,
+				updatedCount,
+			});
+		} catch (err) {
+			next(err);
+		}
+	};
+
 	deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// // TODO: check if requester user is same found user or has credentials
@@ -240,6 +290,8 @@ export default class UserController {
 			next(error);
 		}
 	};
+
+	//TO DO: Implement delete many users
 
 	// helper functions
 	private generateUserResponse = (user: User) => {
