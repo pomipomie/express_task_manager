@@ -6,7 +6,6 @@ import { bindMethods } from "../../utils/binder";
 import mongoose from "mongoose";
 import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
-import redisClient from "../../data/cache/redisClient";
 import { saveCache } from "../../data/cache/saveCache";
 import { deleteCache } from "../../data/cache/deleteCache";
 
@@ -54,34 +53,60 @@ export default class UserController {
 		}
 	};
 
-	//TODO: find users with pagination
-	// const { page = 1, size = 50, ...query } = req.query;
-	// console.log("q", page, size, query); //working
-	// const count = await this.repository.count(query);
-	// console.log("count", count);
-	// const totalPages = Math.ceil(count / +size);
+	findUsersPaginated = async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			const { page = "1", limit = "10", sort = "createdAt", order = "desc", ...query } = req.query;
 
-	// if (count === 0) {
-	// 	return res.status(HttpStatusCode.OK).json({
-	// 		success: true,
-	// 		totalPages: 0,
-	// 		page: 0,
-	// 		pageResults: 0,
-	// 		totalResults: 0,
-	// 		results: [],
-	// 	});
-	// }
+			// Convert to numbers and validate
+			const pageNumber = Math.max(parseInt(page as string, 10), 1);
+			const limitNumber = Math.max(parseInt(limit as string, 10), 1);
+			const offset = (pageNumber - 1) * limitNumber;
 
-	// if (Number(page) > totalPages) {
-	// 	return res.status(400).json({
-	// 		success: false,
-	// 		message: "ResponseMessages.RES_MSG_PAGE_OUT_OF_BOUNDS_EN",
-	// 	});
-	// }
+			// Sort object
+			const sortOrder = order === "asc" ? 1 : -1;
+			const sortObj = { [sort as string]: sortOrder };
 
-	// const { limit, offset } = computeLimitAndOffset(+page, +size);
+			// validate ObjectId if query includes _id
+			if (
+				query._id &&
+				!mongoose.Types.ObjectId.isValid(
+					query._id as
+						| string
+						| number
+						| mongoose.mongo.BSON.ObjectId
+						| mongoose.mongo.BSON.ObjectIdLike
+						| Uint8Array
+				)
+			) {
+				throw new ClientError(
+					"Error getting projects IDs",
+					HttpStatusCode.BAD_REQUEST,
+					"Invalid ObjectId"
+				);
+			}
 
-	// const users = await this.repository.findPaging(query, offset, limit);
+			const [users, total] = await Promise.all([
+				this.repository.findPaging(query, offset, limitNumber, sortObj),
+				this.repository.count(query),
+			]);
+
+			const responseUsers = users.map((user) => this.generateUserResponse(user));
+
+			// Save data to Redis cache for future requests
+			await saveCache(req, responseUsers);
+
+			res.status(HttpStatusCode.OK).json({
+				success: true,
+				page: pageNumber,
+				limit: limitNumber,
+				totalResults: total,
+				totalPages: Math.ceil(total / limitNumber),
+				results: responseUsers,
+			});
+		} catch (err) {
+			next(err);
+		}
+	};
 
 	getUserById = async (req: Request, res: Response, next: NextFunction) => {
 		try {
@@ -96,12 +121,15 @@ export default class UserController {
 				);
 			}
 
+			const responseUser = this.generateUserResponse(user);
+
+
 			// Save data to Redis cache for future requests
-			await saveCache(req, user);
+			await saveCache(req, responseUser);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
-				user,
+				responseUser,
 			});
 		} catch (error) {
 			next(error);
@@ -116,16 +144,18 @@ export default class UserController {
 				throw new ClientError(
 					"User not found",
 					HttpStatusCode.NOT_FOUND,
-					"No users matching the provided ID"
+					"No users matching the provided query"
 				);
 			}
 
+			const responseUser = this.generateUserResponse(user);
+
 			// Save data to Redis cache for future requests
-			await saveCache(req, user);
+			await saveCache(req, responseUser);
 
 			res.status(HttpStatusCode.OK).json({
 				success: true,
-				user,
+				responseUser,
 			});
 		} catch (error) {
 			next(error);
@@ -170,10 +200,12 @@ export default class UserController {
 			//clear cache for this user
 			await deleteCache(`/users/id/${id}`);
 
+			const responseUser = this.generateUserResponse(updatedUser);
+
 			res.status(HttpStatusCode.CREATED).json({
 				success: true,
 				message: "User updated successfully",
-				user: updatedUser,
+				user:responseUser,
 			});
 		} catch (error) {
 			next(error);

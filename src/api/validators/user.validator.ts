@@ -19,6 +19,14 @@ export const findUserValidator = (
 		lastName: Joi.string(),
 		email: Joi.string().email(),
 		role: Joi.string().valid(roles.ADMIN, roles.MANAGER, roles.USER),
+
+		// Pagination
+		page: Joi.number().integer().min(1).default(1),
+		limit: Joi.number().integer().min(1).default(10),
+
+		// Sorting
+		sort: Joi.string().valid("id", "username", "firstName", "lastName", "email", "role", "createdAt", "updatedAt"),
+		order: Joi.string().valid("asc", "desc").default("desc"),
 	});
 	const { error, value } = schema.validate(req.query, { abortEarly: false });
 
@@ -30,7 +38,7 @@ export const findUserValidator = (
 			true
 		);
 	}
-	req.query = value; // Replace `req.body` with validated data
+	Object.assign(req.query, value);
 
 	// Proceed to the next middleware/controller
 	next();

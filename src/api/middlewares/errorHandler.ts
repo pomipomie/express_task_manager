@@ -11,7 +11,7 @@ export const errorHandler = (
 ) => {
 	if (res.headersSent) {
 		logger.error("Headers already sent:", `${err.name} - ${err.message}`);
-		next(err);
+		return next(err);
 	}
 
 	if (err instanceof BaseError) {

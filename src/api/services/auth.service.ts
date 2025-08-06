@@ -6,9 +6,10 @@ import IUserRepo from "../../domain/repositories/interfaces/iuser.repo";
 import config from "../../config";
 import { ClientError } from "../../utils/errors/clientError";
 import { HttpStatusCode } from "../../utils/enums/httpStatusCode.enum";
+import { RedisClientType } from 'redis';
 
 export default class AuthService implements IAuthService {
-	constructor(private userRepo: IUserRepo, private jwtSecret: string) {}
+	constructor(private userRepo: IUserRepo, private jwtSecret: string, private redis: RedisClientType) {}
 
 	signup = async (userData: SignupInput) => {
 		// Check if user already exists
@@ -82,25 +83,37 @@ export default class AuthService implements IAuthService {
 			}
 		);
 		user.auth.token = token;
-		console.log("token", user.auth.token); // for testing purposes
+		// console.log("token", user.auth.token); // for testing purposes
 
 		return { token };
 	};
 
-	verifyToken = async (token: string) => {
-		const decoded = jwt.verify(token, config.JWT_SECRET);
-		if (!decoded) {
+	logout = async (token: string) => {
+		try {
+			// Decode token to get expiration timestamp
+			const decoded: any = jwt.decode(token);
+
+			if (!decoded || !decoded.exp) {
+				throw new ClientError(
+					"Invalid token format",
+					HttpStatusCode.BAD_REQUEST,
+					"Could not decode token"
+				);
+			}
+
+			const exp = decoded.exp; // in seconds
+			const now = Math.floor(Date.now() / 1000);
+			const ttl = exp - now;
+
+			if (ttl > 0) {
+				await this.redis.setEx(`blacklist:${token}`, ttl, 'true');
+			}
+		} catch (error) {
 			throw new ClientError(
-				`Invalid token`,
-				HttpStatusCode.UNAUTHORIZED,
-				`The token is not valid`
+				"Logout failed",
+				HttpStatusCode.INTERNAL_SERVER,
+				"An error occurred while logging out"
 			);
 		}
-
-		return { decoded };
-	};
-
-	logout = async (token: string) => {
-		//TODO
 	};
 }
